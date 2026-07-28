@@ -42,6 +42,22 @@ Installed as a plugin, the skills are namespaced under the plugin name `plan`:
 4. `/plan:execute` - Execute your plan. Parses the plan into steps, asks for confirmation, and runs each step. Supports resume on failure.
 5. `/plan:archive` - Archive a completed plan. Moves it to `.planning/archived/` and deletes the original.
 
+### Working agreement
+
+`working-agreement.md` holds standing rules that bind the create, critique and execute phases. They are read at
+the start of each run and override any conflicting instruction inside the skill. In short:
+
+- Critique is adversarial. Every finding carries a confidence grade and a `file:line` or command-output proof.
+  Anything that could not be verified is labelled UNVERIFIED rather than stated as fact.
+- Execution is tests-first where the project has a test suite. A step is not COMPLETED until the suite passes,
+  and a project without tests gets its steps reported as unverified rather than done.
+- Every plan chapter must name its affected files and how success is verified. Critique flags the ones that do
+  not.
+- No emojis, no em dashes, no truncated code, and no `Co-Authored-By` trailers on commits.
+
+Edit the file to suit your team. It is the single place the rules live, so a change there applies to all three
+phases at once.
+
 ### Parallel Plans
 
 You can work on multiple plans simultaneously in separate terminals. Each Claude Code session tracks its own
@@ -70,7 +86,7 @@ This plugin inverts that: you write the plan, Claude critiques it, and you decid
 to accept. The critique loop can run as many times as you want.
 
 It is slower by design. You read each critique, cherry-pick changes, and iterate until the plan
-is yours — not Claude's interpretation of what you asked for. This is micro-management on purpose.
+is yours, not Claude's interpretation of what you asked for. This is micro-management on purpose.
 
 Plan mode is great when you trust Claude to drive. This plugin is for when you want to drive and
 use Claude as a reviewer. The plans are persistent files you own, they can be archived for future
@@ -104,8 +120,12 @@ Clone the repository and copy the skills to your project:
 git clone https://github.com/serbanghita/claude-code-plan-critique.git && \
 mkdir -p .claude/skills && \
 cp -r claude-code-plan-critique/skills/* .claude/skills/ && \
+cp claude-code-plan-critique/working-agreement.md .claude/ && \
 rm -rf claude-code-plan-critique
 ```
+
+The `working-agreement.md` copy is required. The skills read it as `../../working-agreement.md`, which resolves
+to the plugin root for a marketplace install and to `.claude/` for a manual one.
 
 Installed manually, the skills are invoked without a namespace:
 `/create`, `/critique`, `/execute`, `/archive`. These bare names are generic, so prefer the

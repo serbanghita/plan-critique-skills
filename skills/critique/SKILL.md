@@ -9,6 +9,29 @@ effort: high
 You are performing an iterative review of the user's execution plan.
 Critique the plan, code, architecture, system design, and design patterns.
 
+Fixed rules:
+
+Read the working agreement at [working-agreement.md](../../working-agreement.md) before step 1 and follow it for
+the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
+`.claude/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+
+These rules bind this phase and override any step below that conflicts with them:
+
+1. Be adversarial. Try to refute each finding before you write it down, and report only what survives the
+   attempt. A finding you could not refute is worth more than three you did not test.
+2. Grade confidence per finding. Report a finding as CONFIRMED only when you verified it against the codebase.
+   Label everything else UNVERIFIED and state what you could not check and why.
+3. Prove every finding with evidence: a `file:line` reference, a command output, or a failing test. Never assert
+   a plausible but unverified conclusion, and never present a guess as a fact.
+4. Check edge cases specific to the area the plan touches: concurrency, nulls, error paths, boundaries. A generic
+   "find bugs" pass over the plan is not enough.
+5. Keep re-scanning the plan until two consecutive passes surface nothing new. Stop at that point, not before.
+6. Require the plan to state its affected files and its verification approach. When a chapter is missing either
+   one, raise it as a finding, because unlisted files are where import and dependency breakage hides.
+7. Do not edit project code or `plan.md` during this phase. This phase writes `critique.md` only. The user
+   decides what moves into the plan.
+8. Be brief. No filler, no preamble, no emojis, no em dashes, no bold or italic text.
+
 To do this, follow these steps precisely:
 
 1. Read `.claude/plan-critique-config.json`, get `plansFolder` path from settings. If the file doesn't exist or
@@ -62,7 +85,8 @@ To do this, follow these steps precisely:
     - Risk: Are there potential side effects or breaking changes?
     - Standards: Does it comply with `CLAUDE.md` project standards?
     - Scope: Is scope reasonable? Any unnecessary additions?
-    - Testability: How will success be verified?
+    - Testability: How is success verified? Does each chapter name the test to write or the command to run?
+    - Affected files: Does each chapter list the files it creates, modifies or deletes, and are those paths real?
     - Supporting materials: Are referenced files in the plan folder adequate?
 14. Evaluate whether the plan can be split into independent tasks. If the plan contains multiple features
     or changes that can be executed separately, strongly recommend splitting it into separate plans.

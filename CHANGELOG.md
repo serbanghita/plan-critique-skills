@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-07-28
+
+### Added
+- A `working-agreement.md` at the repository root holding standing rules for planning, verification, tests,
+  context, output style and git. It is the single canonical copy of the rule text.
+- `create`, `critique` and `execute` each open with a `Fixed rules` block that reads the working agreement and
+  lists the rules binding that phase. The rules override any conflicting step in the skill body.
+- `create` writes a plan template with required `Affected files` and `Verification` sections in every chapter.
+- `critique` records `Confidence` (CONFIRMED or UNVERIFIED) and `Evidence` on every issue in `critique.md`, and
+  raises a finding when a plan chapter omits its affected files or its verification approach.
+- `execute` detects test infrastructure before running any step. Where a suite exists, tests-first is binding
+  and a step is not marked COMPLETED until the suite passes. Where none exists, steps are reported as unverified
+  rather than done. The execution log gains a `Tests` line per step and a `Verified by tests` summary count.
+
+### Changed
+- Manual install now also copies `working-agreement.md` into `.claude/` so the skills can resolve it.
+
 ## [2.1.0] - 2026-07-28
 
 ### Added

@@ -6,12 +6,28 @@ argument-hint: [plan name]
 
 You are creating a new plan folder for the user.
 
+Fixed rules:
+
+Read the working agreement at [working-agreement.md](../../working-agreement.md) before step 1 and follow it for
+the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
+`.claude/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+
+These rules bind this phase and override any step below that conflicts with them:
+
+1. Ask clarifying questions up front when the request is ambiguous. Do not guess the plan name, the plans folder,
+   or what the user means. Guessing here produces the wrong plan.
+2. Do not write, edit, or refactor any project code during this phase. This phase produces a plan folder and a
+   `plan.md` and nothing else.
+3. The plan is not finished until it lists its affected files and how success will be verified. The template
+   carries both sections, so do not remove them when filling it in.
+4. Be brief. No filler, no preamble, no restating the request. No emojis, no em dashes, no decorative icons.
+
 To do this, follow these steps precisely:
 
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v2.1.0 - Creating new plan       |
+   |  Plan Critique v2.2.0 - Creating new plan       |
    +-------------------------------------------------+
    ```
 2. Read `.claude/plan-critique-config.json` and get `plansFolder` path from settings.

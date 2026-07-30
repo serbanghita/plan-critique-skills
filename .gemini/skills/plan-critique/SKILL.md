@@ -1,4 +1,5 @@
 ---
+name: plan:critique
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, LSP, mcp__ide__getDiagnostics, Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(echo $PPID), Bash(kill -0:*), Bash(rm:*), Bash(mkdir:*)
 description: Critique the user's plan from plan.md
 disable-model-invocation: true
@@ -11,9 +12,9 @@ Critique the plan, code, architecture, system design, and design patterns.
 
 Fixed rules:
 
-Read the working agreement at [working-agreement.md](../../working-agreement.md) before step 1 and follow it for
+Read the working agreement at [working-agreement.md](../../../working-agreement.md) before step 1 and follow it for
 the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
-`.claude/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+`.gemini/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
 
 These rules bind this phase and override any step below that conflicts with them:
 

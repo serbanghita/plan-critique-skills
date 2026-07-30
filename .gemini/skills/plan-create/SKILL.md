@@ -1,16 +1,17 @@
 ---
+name: plan:create
 allowed-tools: Read, Write, Edit, Glob, AskUserQuestion, Bash(mkdir:*), Bash(echo $PPID), Bash(rm:*)
 description: Create a new plan folder with a plan.md template
-argument-hint: plan name
+argument-hint: [plan name]
 ---
 
 You are creating a new plan folder for the user.
 
 Fixed rules:
 
-Read the working agreement at [working-agreement.md](../../working-agreement.md) before step 1 and follow it for
+Read the working agreement at [working-agreement.md](../../../working-agreement.md) before step 1 and follow it for
 the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
-`.claude/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+`.gemini/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
 
 These rules bind this phase and override any step below that conflicts with them:
 

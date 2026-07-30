@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Write, Edit, Glob, AskUserQuestion, Bash(mkdir:*), Bash(echo $PPID), Bash(rm:*)
 description: Create a new plan folder with a plan.md template
-argument-hint: [plan name]
+argument-hint: plan name
 ---
 
 You are creating a new plan folder for the user.

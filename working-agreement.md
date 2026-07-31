@@ -44,7 +44,8 @@ Each skill lists which of these rules bind its own phase. This file holds the si
 ## Context
 
 1. Re-read this file and the relevant project docs before touching an area, especially in long sessions.
-2. When corrected on something durable, propose adding it to the project `CLAUDE.md` so it persists.
+2. When corrected on something durable, propose adding it to the project instructions file (`CLAUDE.md`,
+   `AGENTS.md`, or `.github/copilot-instructions.md`) so it persists.
 
 ---
 

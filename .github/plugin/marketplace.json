@@ -1,0 +1,22 @@
+{
+  "name": "serbanghita",
+  "owner": {
+    "name": "Serban Ghita",
+    "url": "https://github.com/serbanghita"
+  },
+  "metadata": {
+    "description": "Plugins by Serban Ghita, including the Plan & Critique planning workflow.",
+    "version": "2.3.0"
+  },
+  "plugins": [
+    {
+      "name": "plan",
+      "source": "./",
+      "description": "Iterative plan review and execution workflow for GitHub Copilot CLI",
+      "version": "2.3.0",
+      "license": "MIT",
+      "keywords": ["planning", "critique", "workflow", "review", "execution"],
+      "skills": [".github/skills"]
+    }
+  ]
+}

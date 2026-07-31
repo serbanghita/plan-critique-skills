@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-07-30
+
+### Added
+- GitHub Copilot CLI support. The skills are mirrored to `.github/skills/` as `plan-create`, `plan-critique`,
+  `plan-execute` and `plan-archive`, invoked as `/plan-create`, `/plan-critique`, `/plan-execute` and
+  `/plan-archive`.
+- A Copilot plugin manifest at `.github/plugin/plugin.json` and a Copilot marketplace manifest at
+  `.github/plugin/marketplace.json`, so the repository can be added with
+  `copilot plugin marketplace add serbanghita/claude-code-plan-critique` and installed with
+  `copilot plugin install plan@serbanghita`.
+
+### Changed
+- The Copilot skills carry the `name` and `description` frontmatter fields required by the Copilot skill format,
+  and drop the Claude specific `allowed-tools`, `argument-hint`, `model` and `effort` fields.
+- The Copilot skills track the current plan with the `COPILOT_AGENT_SESSION_ID` environment variable instead of
+  the process id, and clear session files that have not been modified in the last 7 days. This removes the
+  dependency on `echo $PPID` and `kill -0`, which do not work on Windows.
+- The Copilot skills read `plansFolder` from `.copilot/plan-critique-config.json` and fall back to
+  `.claude/plan-critique-config.json`, so a project already using the Claude Code plugin keeps the same plans
+  folder.
+- The Copilot skills read project standards from `.github/copilot-instructions.md`, `AGENTS.md` or `CLAUDE.md`,
+  and use the built-in language server integration instead of the Claude LSP plugins.
+
 ## [2.2.0] - 2026-07-28
 
 ### Added

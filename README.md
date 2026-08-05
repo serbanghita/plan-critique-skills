@@ -124,21 +124,25 @@ See [ghita.org/blog/claude-code-plan-critique](https://ghita.org/blog/claude-cod
 
 ## Costs
 
-Token cost of the skills as reported by `claude plugin details plan@serbanghita`. Always-on is the
-fixed cost added to every session just for having the plugin enabled (the skill descriptions).
-On-invoke is paid only when a skill runs, when its `SKILL.md` body loads; the linked format files
-load on demand within a skill. Numbers are rounded estimates, not exact billing (`1k` is about 1000
-tokens).
+Token cost of the skills for v2.2.0, as reported by `claude plugin details plan@serbanghita`.
+Always-on is the fixed cost added to every session just for having the plugin enabled (the skill
+descriptions). On-invoke is paid only when a skill runs, when its `SKILL.md` body loads; the linked
+format files load on demand within a skill. Numbers are rounded estimates, not exact billing
+(`1k` is about 1000 tokens).
 
 | Skill    | Always-on | On-invoke |
 | -------- | --------- | --------- |
-| create   | ~20       | ~950      |
-| critique | <20       | ~2.4k     |
-| execute  | ~30       | ~3.4k     |
+| create   | ~20       | ~1.3k     |
+| critique | <20       | ~3.1k     |
+| execute  | ~30       | ~4.8k     |
 | archive  | ~30       | ~1.3k     |
 
-Always-on total: ~95 tokens added to every session. On-invoke cost is paid each time that skill
+Always-on total: ~90 tokens added to every session. On-invoke cost is paid each time that skill
 fires, so one full plan -> critique -> execute -> archive cycle pays each skill's on-invoke cost once.
+
+The create, critique and execute skills each read `working-agreement.md` when they run. That is a
+linked file, so it is not counted in the on-invoke figures above. It adds roughly 700 tokens to each
+of those three runs. Trimming rules you do not use is the cheapest way to bring that down.
 
 ## Contribute
 

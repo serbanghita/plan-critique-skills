@@ -68,14 +68,22 @@ To do this, follow these steps precisely:
    - If `plan.md` is empty: Respond with "Plan file is empty. Edit `[plansFolder]/[selected-plan]/plan.md`"
    - If no project instructions file exists: Respond with "Create a `.github/copilot-instructions.md` file in the
      root of your project."
-10. Detect project languages and check for code intelligence support:
+10. Detect project languages and verify language server availability. Code intelligence is the required tool
+    for code verification in this phase, so this check is mandatory:
     - Use Glob to check for TypeScript indicators: `tsconfig.json`, `*.ts`, or `*.tsx` files in the project
     - Use Glob to check for other language indicators, for example `composer.json` or `*.php`, `go.mod`,
       `pyproject.toml`, `pom.xml`
-    - Copilot CLI ships with language server support. If a detected language has no language server running,
-      inform the user: "This project uses [language]. For better code intelligence during critique, configure a
-      language server with the `/lsp` command."
-    - This is informational only, do not block the critique.
+    - Probe the language server: pick a source file referenced by the plan (or any project source file) and
+      request go-to-definition or hover on a known symbol.
+    - If the probe succeeds, a language server is available. Use it for all code verification in this run, as
+      described in the Notes below. Do not substitute Grep for checks the language server can answer.
+    - If the probe fails or no language server is running for the detected language, inform the user before
+      continuing:
+      "No language server detected for [language]. The critique will fall back to Grep, which is less
+      accurate. Configure a language server with the `/lsp` command, or use an LSP setup skill such as
+      https://github.com/github/awesome-copilot/tree/main/skills/lsp-setup to install and configure one."
+    - Do not block the critique. Proceed with the Grep fallback and record in the critique Summary that no
+      language server was available, so the user knows symbol verification relied on Grep.
 11. Read the existing "Iteration: [number]" at `[plansFolder]/[selected-plan]/critique.md` (if it exists) and
     determine the current iteration number. If no critique exists, this is iteration 1.
 12. If the plan references files that are in the `[plansFolder]/[selected-plan]/` folder, review those as well and
@@ -115,11 +123,13 @@ Notes:
   instructions, the `README.md` file, dependencies (package.json, requirements.txt, etc.), git state if relevant,
   whether referenced files/APIs actually exist, supporting files in the plan folder.
 - When doing the writeup of the critique, in the "Description" area make use of the line numbers from `plan.md` file and reference those, so that the user can easily find what text to replace/update.
-- Use code intelligence to verify the plan against the actual codebase:
-  - Verify types exist: use the LSP go-to-definition operation when a language server is available, fall back to
-    Grep for `class`, `interface`, `type`, or `struct` definitions
-  - Check method/function existence: use LSP go-to-definition, fall back to Grep for `function`/`def`/`fn` declarations in the target file
-  - Find usages/references: use LSP find-references, fall back to Grep for the symbol name across the codebase
+- Use code intelligence to verify the plan against the actual codebase. Always use the language server when
+  step 10 confirmed it is available; use Grep only as a fallback when step 10 found no language server:
+  - Verify types exist: use the LSP go-to-definition operation; fallback is Grep for `class`, `interface`,
+    `type`, or `struct` definitions
+  - Check method/function existence: use LSP go-to-definition; fallback is Grep for `function`/`def`/`fn`
+    declarations in the target file
+  - Find usages/references: use LSP find-references; fallback is Grep for the symbol name across the codebase
   - Review diagnostics: use the LSP hover and definition operations on files referenced in the plan to surface
     current errors and warnings
   - Verify file paths exist with Glob before referencing them in the critique

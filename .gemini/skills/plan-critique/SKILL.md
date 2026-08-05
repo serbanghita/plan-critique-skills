@@ -64,16 +64,23 @@ To do this, follow these steps precisely:
 9. Check for errors:
    - If `plan.md` is empty: Respond with "Plan file is empty. Edit `[plansFolder]/[selected-plan]/plan.md`"
    - If `CLAUDE.md` does not exist in project root: Respond with "Create a `CLAUDE.md` file in the root of your project."
-10. Detect project languages and check for LSP support:
-    - Use Glob to check for TypeScript indicators: `tsconfig.json`, `*.ts`, or `*.tsx` files in the project
-    - Use Glob to check for PHP indicators: `composer.json` or `*.php` files in the project
-    - If TypeScript files are detected, inform the user:
-      "This project uses TypeScript. For better code intelligence during critique, enable the
-      `typescript-lsp` plugin (claude-plugins-official). Check with the `/plugins` command."
-    - If PHP files are detected, inform the user:
-      "This project uses PHP. For better code intelligence during critique, enable the
-      `php-lsp` plugin (claude-plugins-official). Check with the `/plugins` command."
-    - This is informational only, do not block the critique.
+10. Detect project languages and verify LSP availability. LSP is the required tool for code verification in
+    this phase, so this check is mandatory:
+    - Detect the main project languages with Glob: `tsconfig.json`, `*.ts`, or `*.tsx` for TypeScript,
+      `composer.json` or `*.php` for PHP, and the equivalent markers for any other language the plan touches.
+    - Probe LSP: pick a source file referenced by the plan (or any project source file) and request
+      go-to-definition or hover on a known symbol using the LSP tool.
+    - If the probe succeeds, LSP is available. Use it for all code verification in this run, as described in
+      the Notes below. Do not substitute Grep for checks LSP can answer.
+    - If the probe fails or the LSP tool is not available for the detected language, inform the user before
+      continuing:
+      "No LSP support detected for [language]. The critique will fall back to Grep, which is less accurate.
+      To enable code intelligence, install the LSP plugin for your language (for example `typescript-lsp` or
+      `php-lsp` from claude-plugins-official, check with the `/plugins` command), or use an LSP setup skill
+      such as https://github.com/github/awesome-copilot/tree/main/skills/lsp-setup to install and configure a
+      language server."
+    - Do not block the critique. Proceed with the Grep fallback and record in the critique Summary that LSP
+      was unavailable, so the user knows symbol verification relied on Grep.
 11. Read the existing "Iteration: [number]" at `[plansFolder]/[selected-plan]/critique.md` (if it exists) and
     determine the current iteration number. If no critique exists, this is iteration 1.
 12. If the plan references files that are in the `[plansFolder]/[selected-plan]/` folder, review those as well and
@@ -111,11 +118,15 @@ Notes:
 
 - When critiquing, always analyze codebase structure (existing files, directories, patterns), Project standards from `CLAUDE.md`, The `README.md` file, dependencies (package.json, requirements.txt, etc.), git state if relevant, whether referenced files/APIs actually exist, supporting files in the plan folder.
 - When doing the writeup of the critique, in the "Description" area make use of the line numbers from `plan.md` file and reference those, so that the user can easily find what text to replace/update.
-- Use code intelligence to verify the plan against the actual codebase:
-  - Verify types exist: use LSP go-to-definition when an LSP plugin is enabled, fall back to Grep for `class`, `interface`, `type`, or `struct` definitions
-  - Check method/function existence: use LSP go-to-definition, fall back to Grep for `function`/`def`/`fn` declarations in the target file
-  - Find usages/references: use LSP find-references, fall back to Grep for the symbol name across the codebase
-  - Review diagnostics: use `mcp__ide__getDiagnostics` to pull current errors/warnings from the IDE for files referenced in the plan
+- Use code intelligence to verify the plan against the actual codebase. Always use LSP when step 10 confirmed
+  it is available; use Grep only as a fallback when step 10 found no LSP support:
+  - Verify types exist: use LSP go-to-definition; fallback is Grep for `class`, `interface`, `type`, or
+    `struct` definitions
+  - Check method/function existence: use LSP go-to-definition; fallback is Grep for `function`/`def`/`fn`
+    declarations in the target file
+  - Find usages/references: use LSP find-references; fallback is Grep for the symbol name across the codebase
+  - Review diagnostics: use `mcp__ide__getDiagnostics` to pull current errors/warnings from the IDE for files
+    referenced in the plan
   - Verify file paths exist with Glob before referencing them in the critique
 - Add the found issues/observations list in the beginning of the critique.md file as a Table of contents
 - Always follow the chapters from plan.md as a structure for critique

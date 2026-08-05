@@ -13,6 +13,7 @@ Iteration: [number]
 
 [Brief overview of the plan and overall assessment. Only use bullets, no formatting.]
 [State the CONFIRMED count and the UNVERIFIED count.]
+[If no language server was available during this run, state that symbol verification used the Grep fallback.]
 
 ---
 

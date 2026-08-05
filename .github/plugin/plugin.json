@@ -1,7 +1,7 @@
 {
   "name": "plan",
   "description": "Iterative plan review and execution workflow for GitHub Copilot CLI",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "author": {
     "name": "Serban Ghita",
     "url": "https://github.com/serbanghita"

@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-08-05
+
+### Changed
+- `critique` now requires code intelligence for code verification. Step 10 detects the project languages and
+  probes the language server with a go-to-definition or hover request before the critique starts. When it
+  responds, it must be used for all symbol verification and Grep may not be substituted for checks it can
+  answer.
+- When no LSP support is found, `critique` suggests enabling it before falling back: on Claude Code and
+  Antigravity, install the LSP plugin for the detected language (for example `typescript-lsp` or `php-lsp`
+  from claude-plugins-official); on Copilot CLI, configure a language server with the `/lsp` command. Both
+  also point to an LSP setup skill such as github/awesome-copilot `skills/lsp-setup`. The critique then
+  proceeds on the Grep fallback without blocking.
+- The critique Summary now records when LSP was unavailable, so the user knows symbol verification relied on
+  the Grep fallback.
+- Updated the README costs section with token figures measured at v2.2.0 and a note on the shared
+  `working-agreement.md` cost.
+
 ## [2.3.0] - 2026-07-30
 
 ### Added

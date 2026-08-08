@@ -24,10 +24,12 @@ Session tracking for parallel plans:
 - Skills read the session file to determine the current plan and show it as "(current session)" in selection.
 - The `.sessions/` directory is local state and should be gitignored.
 
-Per agent settings and manifests:
-- Claude Code: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, config in
+Per agent settings, manifests, and documentation:
+- Claude Code: `docs/claude-code.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, config in
   `.claude/plan-critique-config.json`, project standards in `CLAUDE.md`.
-- Copilot CLI: `.github/plugin/plugin.json`, `.github/plugin/marketplace.json`, config in
+- Agy / Antigravity: `docs/agy.md`, config in `.gemini/plan-critique-config.json` with a fallback read of
+  `.claude/plan-critique-config.json`, project standards in `GEMINI.md`, `AGENTS.md` or `CLAUDE.md`.
+- Copilot CLI: `docs/copilot.md`, `.github/plugin/plugin.json`, `.github/plugin/marketplace.json`, config in
   `.copilot/plan-critique-config.json` with a fallback read of `.claude/plan-critique-config.json`, project
   standards in `.github/copilot-instructions.md`, `AGENTS.md` or `CLAUDE.md`.
 - The Copilot skills carry `name`, `description` and `license` frontmatter. They do not carry `allowed-tools`,

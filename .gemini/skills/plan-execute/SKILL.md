@@ -1,5 +1,5 @@
 ---
-name: plan:execute
+name: plan-execute
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, LSP, mcp__ide__getDiagnostics, Bash
 description: Execute the user's plan that has been iteratively refined
 disable-model-invocation: true
@@ -32,17 +32,18 @@ These rules bind this phase and override any step below that conflicts with them
 
 To do this, follow these steps precisely:
 
-1. Read `.claude/plan-critique-config.json` and get `plansFolder` path from settings.
-   If the file doesn't exist or `plansFolder` is not set:
-   Respond with "No plans folder configured. Run `/plan:create` first to set up."
-2. Get the Claude Code process ID by running: `echo $PPID`. Store this as `sessionPID`.
+1. Read `.gemini/plan-critique-config.json` and get `plansFolder` path from settings.
+   If that file does not exist, read `.claude/plan-critique-config.json` instead.
+   If neither file exists or `plansFolder` is not set:
+   Respond with "No plans folder configured. Run `/plan-create` first to set up."
+2. Get the session process ID by running: `echo $PPID`. Store this as `sessionPID`.
 3. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that
    process is still running via `kill -0 [PID] 2>/dev/null`. If the command fails (process not running), delete that
    session file. This is non-blocking cleanup.
 4. Read the current session's plan from `[plansFolder]/.sessions/[sessionPID]` if it exists. Store as `sessionPlan`.
 5. Scan `[plansFolder]/` for subdirectories (each subdirectory is a plan).
    Exclude `archived/` and `.sessions/` folders and any files, only list plan directories.
-   If no plan folders exist: Respond with "No plans found. Create one with `/plan:create`".
+   If no plan folders exist: Respond with "No plans found. Create one with `/plan-create`".
 6. Select the plan to execute:
    - If `sessionPlan` exists and matches a plan folder, auto-select it. Inform the user:
      "Using current session plan: [sessionPlan]"
@@ -60,15 +61,15 @@ To do this, follow these steps precisely:
 7. Update the session file `[plansFolder]/.sessions/[sessionPID]` with the selected plan slug (create if needed).
 8. Check prerequisites:
    - If `[plansFolder]/[selected-plan]/plan.md` does not exist: Respond with "No plan.md found."
-   - If `plan.md` is empty: Respond with "Plan file is empty. Run /plan:critique first."
-9. Read `CLAUDE.md` from the project root if it exists. Hold its standards as context and ensure compliance during
-   each execution step. If it does not exist, note this but do not block execution.
+   - If `plan.md` is empty: Respond with "Plan file is empty. Run /plan-critique first."
+9. Read `GEMINI.md`, `AGENTS.md`, or `CLAUDE.md` from the project root if it exists. Hold its standards as context
+   and ensure compliance during each execution step. If none exist, note this but do not block execution.
 10. Read `[plansFolder]/[selected-plan]/critique.md` if it exists. Note the iteration number and summary.
     Inform the user: "Plan was critiqued (iteration N). Last critique summary: [brief]."
     Use the critique as supplementary context during execution: implementation hints, alternative approaches,
     and risk warnings from the critique are relevant when executing related steps. Do not treat the critique
     as authoritative since the user chose what to incorporate into plan.md.
-    If critique.md does not exist, warn: "This plan has not been critiqued. Run `/plan:critique` first,
+    If critique.md does not exist, warn: "This plan has not been critiqued. Run `/plan-critique` first,
     or confirm you want to proceed without review." Wait for user confirmation before continuing.
 11. Check git status by running `git status`.
     - If git repo and clean: inform user "Git available. Per-step commits will be offered after each step."
@@ -158,7 +159,7 @@ To do this, follow these steps precisely:
       - Record the commit hash in execution-state.json under `gitCommits`.
     - Compute step duration and log results to execution-log.md including duration and files changed
       (see [execution-log-format.md](execution-log-format.md)).
-    - If a step introduces architectural patterns that should be documented in `CLAUDE.md`,
+    - If a step introduces architectural patterns that should be documented in `GEMINI.md` or `CLAUDE.md`,
       flag this to the user immediately rather than waiting until completion.
     - On error:
       - Save execution state with the failed step.
@@ -168,7 +169,7 @@ To do this, follow these steps precisely:
         1. Fix and retry - attempt to fix the issue, then re-execute this step.
         2. Skip step - mark as SKIPPED, warn about downstream dependencies, continue.
         3. Rollback step - if git commits are available, revert the last commit. Then stop.
-        4. Stop execution - save state, stop. Resume later with `/plan:execute`.
+        4. Stop execution - save state, stop. Resume later with `/plan-execute`.
       - Wait for user choice.
 18. On successful completion:
     - If tests are available (step 12), run the full suite one last time and show the output. Do not declare the
@@ -179,7 +180,7 @@ To do this, follow these steps precisely:
     - Delete execution-state.json.
     - If git was used, mention the commit count: "Plan executed across N commits.
       Review with `git log --oneline -N`."
-    - Inform user: "Plan executed successfully. Run `/plan:archive` to archive this plan."
+    - Inform user: "Plan executed successfully. Run `/plan-archive` to archive this plan."
 
 Notes:
 

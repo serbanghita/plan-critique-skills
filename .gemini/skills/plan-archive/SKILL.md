@@ -1,5 +1,5 @@
 ---
-name: plan:archive
+name: plan-archive
 allowed-tools: Read, Write, Edit, Glob, AskUserQuestion, Bash(mkdir:*), Bash(cp:*), Bash(mv:*), Bash(rm:*), Bash(echo $PPID), Bash(kill -0:*), Bash(ls:*)
 description: Archive a completed or abandoned plan for future reference
 disable-model-invocation: true
@@ -9,10 +9,11 @@ You are archiving the user's completed (or abandoned) plan for future reference.
 
 To do this, follow these steps precisely:
 
-1. Read `.claude/plan-critique-config.json` and get `plansFolder` path from settings.
-   If the file doesn't exist or `plansFolder` is not set:
-   Respond with "No plans folder configured. Run `/plan:create` first to set up."
-2. Get the Claude Code process ID by running: `echo $PPID`. Store this as `sessionPID`.
+1. Read `.gemini/plan-critique-config.json` and get `plansFolder` path from settings.
+   If that file does not exist, read `.claude/plan-critique-config.json` instead.
+   If neither file exists or `plansFolder` is not set:
+   Respond with "No plans folder configured. Run `/plan-create` first to set up."
+2. Get the session process ID by running: `echo $PPID`. Store this as `sessionPID`.
 3. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that
    process is still running via `kill -0 [PID] 2>/dev/null`. If the command fails (process not running), delete that
    session file. This is non-blocking cleanup.

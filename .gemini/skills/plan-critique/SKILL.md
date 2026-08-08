@@ -1,5 +1,5 @@
 ---
-name: plan:critique
+name: plan-critique
 allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, LSP, mcp__ide__getDiagnostics, Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(echo $PPID), Bash(kill -0:*), Bash(rm:*), Bash(mkdir:*)
 description: Critique the user's plan from plan.md
 disable-model-invocation: true
@@ -35,16 +35,17 @@ These rules bind this phase and override any step below that conflicts with them
 
 To do this, follow these steps precisely:
 
-1. Read `.claude/plan-critique-config.json`, get `plansFolder` path from settings. If the file doesn't exist or
-   `plansFolder` is not set: Respond with "No plans folder configured. Run `/plan:create` first to set up."
-2. Get the Claude Code process ID by running: `echo $PPID`. Store this as `sessionPID`.
+1. Read `.gemini/plan-critique-config.json`, get `plansFolder` path from settings.
+   If that file does not exist, read `.claude/plan-critique-config.json` instead.
+   If neither file exists or `plansFolder` is not set: Respond with "No plans folder configured. Run `/plan-create` first to set up."
+2. Get the session process ID by running: `echo $PPID`. Store this as `sessionPID`.
 3. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that
    process is still running via `kill -0 [PID] 2>/dev/null`. If the command fails (process not running), delete that
    session file. This is non-blocking cleanup.
 4. Read the current session's plan from `[plansFolder]/.sessions/[sessionPID]` if it exists. Store as `sessionPlan`.
 5. Scan `[plansFolder]/` for subdirectories (each subdirectory is a plan). Exclude `archived/` and `.sessions/`
    folders and any files, only list plan directories.
-   If no plan folders exist: Respond with "No plans found. Create one with `/plan:create`".
+   If no plan folders exist: Respond with "No plans found. Create one with `/plan-create`".
 6. Select the plan to critique:
    - If `sessionPlan` exists and matches a plan folder, auto-select it. Inform the user:
      "Using current session plan: [sessionPlan]"
@@ -63,7 +64,7 @@ To do this, follow these steps precisely:
 8. Read the plan file at `[plansFolder]/[selected-plan]/plan.md`
 9. Check for errors:
    - If `plan.md` is empty: Respond with "Plan file is empty. Edit `[plansFolder]/[selected-plan]/plan.md`"
-   - If `CLAUDE.md` does not exist in project root: Respond with "Create a `CLAUDE.md` file in the root of your project."
+   - If none of `GEMINI.md`, `AGENTS.md`, or `CLAUDE.md` exist in project root: Respond with "Create a `GEMINI.md`, `AGENTS.md`, or `CLAUDE.md` file in the root of your project."
 10. Detect project languages and verify LSP availability. LSP is the required tool for code verification in
     this phase, so this check is mandatory:
     - Detect the main project languages with Glob: `tsconfig.json`, `*.ts`, or `*.tsx` for TypeScript,

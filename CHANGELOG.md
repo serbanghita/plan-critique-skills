@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-08-08
+
+### Added
+- Dedicated agent documentation sub-guides in `docs/`: `docs/claude-code.md`, `docs/agy.md`, and `docs/copilot.md`.
+- Multi-agent support across Claude Code, Agy (Gemini CLI / Antigravity), and GitHub Copilot CLI.
+- Config resolution for Agy/Gemini to read `.gemini/plan-critique-config.json` with fallback to
+  `.claude/plan-critique-config.json`.
+- Project instructions file support for `GEMINI.md` alongside `CLAUDE.md`, `AGENTS.md`, and
+  `.github/copilot-instructions.md`.
+
+### Changed
+- Renamed project to `plan-critique-skills` (https://github.com/serbanghita/plan-critique-skills).
+- Updated plugin manifests in `.claude-plugin/` and `.github/plugin/` with new repository URLs.
+- Updated skill version banner to `v2.5.0` across all agent skills.
+- Overhauled `README.md` with per-agent installation subsections and compatibility matrix.
+
 ## [2.4.0] - 2026-08-05
 
 ### Changed

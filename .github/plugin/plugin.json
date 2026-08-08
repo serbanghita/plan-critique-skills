@@ -1,13 +1,13 @@
 {
   "name": "plan",
   "description": "Iterative plan review and execution workflow for GitHub Copilot CLI",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "author": {
     "name": "Serban Ghita",
     "url": "https://github.com/serbanghita"
   },
-  "homepage": "https://github.com/serbanghita/claude-code-plan-critique",
-  "repository": "https://github.com/serbanghita/claude-code-plan-critique",
+  "homepage": "https://github.com/serbanghita/plan-critique-skills",
+  "repository": "https://github.com/serbanghita/plan-critique-skills",
   "license": "MIT",
   "keywords": ["planning", "critique", "workflow", "review", "execution"],
   "skills": [".github/skills"]

@@ -1,6 +1,8 @@
 ---
 name: plan-archive
-description: Archive a completed or abandoned plan for future reference. Use when the user runs /plan-archive or asks to archive a finished plan.
+description: >-
+  Archive a completed or abandoned plan for future reference. Use when the user runs /plan-archive or asks to
+  archive a finished plan.
 license: MIT
 disable-model-invocation: true
 ---

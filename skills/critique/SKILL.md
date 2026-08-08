@@ -1,5 +1,7 @@
 ---
-allowed-tools: Read, Glob, Grep, Write, Edit, AskUserQuestion, LSP, mcp__ide__getDiagnostics, Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(echo $PPID), Bash(kill -0:*), Bash(rm:*), Bash(mkdir:*)
+allowed-tools: >-
+  Read, Glob, Grep, Write, Edit, AskUserQuestion, LSP, mcp__ide__getDiagnostics, Bash(git status:*),
+  Bash(git log:*), Bash(git diff:*), Bash(echo $PPID), Bash(kill -0:*), Bash(rm:*), Bash(mkdir:*)
 description: Critique the user's plan from plan.md
 disable-model-invocation: true
 model: opus
@@ -62,7 +64,8 @@ To do this, follow these steps precisely:
 8. Read the plan file at `[plansFolder]/[selected-plan]/plan.md`
 9. Check for errors:
    - If `plan.md` is empty: Respond with "Plan file is empty. Edit `[plansFolder]/[selected-plan]/plan.md`"
-   - If `CLAUDE.md` does not exist in project root: Respond with "Create a `CLAUDE.md` file in the root of your project."
+   - If `CLAUDE.md` does not exist in project root:
+     Respond with "Create a `CLAUDE.md` file in the root of your project."
 10. Detect project languages and verify LSP availability. LSP is the required tool for code verification in
     this phase, so this check is mandatory:
     - Detect the main project languages with Glob: `tsconfig.json`, `*.ts`, or `*.tsx` for TypeScript,
@@ -115,8 +118,11 @@ To do this, follow these steps precisely:
 
 Notes:
 
-- When critiquing, always analyze codebase structure (existing files, directories, patterns), Project standards from `CLAUDE.md`, The `README.md` file, dependencies (package.json, requirements.txt, etc.), git state if relevant, whether referenced files/APIs actually exist, supporting files in the plan folder.
-- When doing the writeup of the critique, in the "Description" area make use of the line numbers from `plan.md` file and reference those, so that the user can easily find what text to replace/update.
+- When critiquing, always analyze codebase structure (existing files, directories, patterns), project standards
+  from `CLAUDE.md`, the `README.md` file, dependencies (`package.json`, `requirements.txt`, etc.), git state if
+  relevant, whether referenced files/APIs actually exist, and supporting files in the plan folder.
+- When doing the writeup of the critique, in the "Description" area make use of the line numbers from `plan.md`
+  and reference them so that the user can easily find what text to replace or update.
 - Use code intelligence to verify the plan against the actual codebase. Always use LSP when step 10 confirmed
   it is available; use Grep only as a fallback when step 10 found no LSP support:
   - Verify types exist: use LSP go-to-definition; fallback is Grep for `class`, `interface`, `type`, or
@@ -134,5 +140,6 @@ Notes:
 - Each critique iteration completely overwrites the previous critique.md file.
 - Discard addressed issues: If an issue from the previous critique has been fixed in plan.md, do not include it.
 - Only include current issues: The critique should reflect the current state of plan.md.
-- New unrelated observations: If new issues appear that don't fit under existing plan.md chapters add them as new chapters at the bottom of the critique
+- New unrelated observations: If new issues appear that don't fit under existing `plan.md` chapters, add them as
+  new chapters at the bottom of the critique
 - Increment iteration number: Always increment from the previous critique's iteration number

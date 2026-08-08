@@ -1,6 +1,8 @@
 ---
 name: plan-critique
-description: Critique the user's plan from plan.md and write critique.md. Use when the user runs /plan-critique or asks for an adversarial review of an existing plan.
+description: >-
+  Critique the user's plan from plan.md and write critique.md. Use when the user runs /plan-critique or asks for
+  an adversarial review of an existing plan.
 license: MIT
 disable-model-invocation: true
 ---
@@ -122,7 +124,8 @@ Notes:
 - When critiquing, always analyze codebase structure (existing files, directories, patterns), the project
   instructions, the `README.md` file, dependencies (package.json, requirements.txt, etc.), git state if relevant,
   whether referenced files/APIs actually exist, supporting files in the plan folder.
-- When doing the writeup of the critique, in the "Description" area make use of the line numbers from `plan.md` file and reference those, so that the user can easily find what text to replace/update.
+- When doing the writeup of the critique, in the "Description" area make use of the line numbers from `plan.md`
+  and reference them so that the user can easily find what text to replace or update.
 - Use code intelligence to verify the plan against the actual codebase. Always use the language server when
   step 10 confirmed it is available; use Grep only as a fallback when step 10 found no language server:
   - Verify types exist: use the LSP go-to-definition operation; fallback is Grep for `class`, `interface`,
@@ -140,6 +143,7 @@ Notes:
 - Each critique iteration completely overwrites the previous critique.md file.
 - Discard addressed issues: If an issue from the previous critique has been fixed in plan.md, do not include it.
 - Only include current issues: The critique should reflect the current state of plan.md.
-- New unrelated observations: If new issues appear that don't fit under existing plan.md chapters add them as new chapters at the bottom of the critique
+- New unrelated observations: If new issues appear that don't fit under existing `plan.md` chapters, add them as
+  new chapters at the bottom of the critique
 - Increment iteration number: Always increment from the previous critique's iteration number
 - Critique is the most demanding phase. Select a high capability model with the `/model` command before running it.

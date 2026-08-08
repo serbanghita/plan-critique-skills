@@ -1,6 +1,8 @@
 ---
 name: plan-execute
-description: Execute the user's plan that has been iteratively refined, step by step, with resume on failure. Use when the user runs /plan-execute or asks to execute an existing plan.
+description: >-
+  Execute the user's plan that has been iteratively refined, step by step, with resume on failure. Use when the
+  user runs /plan-execute or asks to execute an existing plan.
 license: MIT
 disable-model-invocation: true
 ---

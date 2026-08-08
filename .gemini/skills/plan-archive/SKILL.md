@@ -1,6 +1,8 @@
 ---
 name: plan-archive
-allowed-tools: Read, Write, Edit, Glob, AskUserQuestion, Bash(mkdir:*), Bash(cp:*), Bash(mv:*), Bash(rm:*), Bash(echo $PPID), Bash(kill -0:*), Bash(ls:*)
+allowed-tools: >-
+  Read, Write, Edit, Glob, AskUserQuestion, Bash(mkdir:*), Bash(cp:*), Bash(mv:*), Bash(rm:*),
+  Bash(echo $PPID), Bash(kill -0:*), Bash(ls:*)
 description: Archive a completed or abandoned plan for future reference
 disable-model-invocation: true
 ---

@@ -1,6 +1,8 @@
 ---
 name: plan-create
-description: Create a new plan folder with a plan.md template. Use when the user asks to start, create or open a new plan, or runs /plan-create.
+description: >-
+  Create a new plan folder with a plan.md template. Use when the user asks to start, create or open a new plan,
+  or runs /plan-create.
 license: MIT
 ---
 

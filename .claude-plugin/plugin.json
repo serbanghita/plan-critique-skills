@@ -1,7 +1,7 @@
 {
   "name": "plan",
   "displayName": "Plan & Critique",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Iterative plan review and execution workflow for Claude Code",
   "author": {
     "name": "Serban Ghita",

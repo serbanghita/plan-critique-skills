@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2026-08-08
+
+### Added
+- A GitHub Actions workflow that validates Copilot marketplace and manual skill discovery.
+
+### Fixed
+- Ignore local plan session files in `.planning/.sessions/`.
+- Reflowed all agent skill Markdown files to the 120-column limit.
+
 ## [2.5.0] - 2026-08-08
 
 ### Added

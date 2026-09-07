@@ -32,7 +32,7 @@ These rules bind this phase and override any step below that conflicts with them
 To do this, follow these steps precisely:
 
 1. Read `.claude/plan-critique-config.json` and get `plansFolder` path from settings.
-   If the file doesn't exist or `plansFolder` is not set:
+   If the file doesn't exist or `plansFolder` is not set or is an empty string:
    Respond with "No plans folder configured. Run `/plan:create` first to set up."
 2. Get the Claude Code process ID by running: `echo $PPID`. Store this as `sessionPID`.
 3. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that

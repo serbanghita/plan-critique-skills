@@ -42,7 +42,7 @@ To do this, follow these steps precisely:
 
 1. Read `.gemini/plan-critique-config.json`, get `plansFolder` path from settings.
    If that file does not exist, read `.claude/plan-critique-config.json` instead.
-   If neither file exists or `plansFolder` is not set:
+   If neither file exists or `plansFolder` is not set or is an empty string:
    Respond with "No plans folder configured. Run `/plan-create` first to set up."
 2. Get the session process ID by running: `echo $PPID`. Store this as `sessionPID`.
 3. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that

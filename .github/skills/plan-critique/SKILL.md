@@ -42,8 +42,8 @@ In this skill, "project instructions" means the first of these files that exists
 To do this, follow these steps precisely:
 
 1. Read `.copilot/plan-critique-config.json`, get `plansFolder` path from settings. If that file does not exist,
-   read `.claude/plan-critique-config.json` instead. If neither file exists or `plansFolder` is not set:
-   Respond with "No plans folder configured. Run `/plan-create` first to set up."
+   read `.claude/plan-critique-config.json` instead. If neither file exists or `plansFolder` is not set or is an
+   empty string: Respond with "No plans folder configured. Run `/plan-create` first to set up."
 2. Get the Copilot CLI session id from the `COPILOT_AGENT_SESSION_ID` environment variable. Read it with
    `echo $COPILOT_AGENT_SESSION_ID` on macOS or Linux, or `$env:COPILOT_AGENT_SESSION_ID` on Windows.
    If the variable is empty, use the literal value `default` instead. Store this as `sessionId`.

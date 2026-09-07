@@ -38,11 +38,16 @@ These rules bind this phase and override any step below that conflicts with them
    `file:line` reference, a command output, or a failing test.
 6. Re-read `plan.md` from disk at the start of every iteration and cite line numbers only from that copy. Merging
    shifts every line below the merge point, so numbers carried over from an earlier iteration are wrong.
-7. Merging is automatic for the obvious changes only, and never silent. Record every merged finding, every finding
+7. Verify what you merge, not only what you find. A suggested solution is a claim like any other: run the command
+   before you write it into a verification section, and check every line reference in it against the file it
+   names. An unverified fix is not merged, it is asked about. A merge that ships a broken command costs the next
+   iteration. Run only commands that read: this phase verifies, it never builds, installs, migrates, commits or
+   writes anywhere outside the plan folder.
+8. Merging is automatic for the obvious changes only, and never silent. Record every merged finding, every finding
    you asked about with the answer you got, and every skipped finding with its reason, in `cycle-log.md`, and
    print the same summary after each iteration.
-8. Stop early when an iteration surfaces no new findings. Respond "No new findings." and go to the approval gate.
-9. Be brief. No filler, no preamble, no restating the request. No emojis, no em dashes, no bold or italic text.
+9. Stop early when an iteration surfaces no new findings. Respond "No new findings." and go to the approval gate.
+10. Be brief. No filler, no preamble, no restating the request. No emojis, no em dashes, no bold or italic text.
 
 In this skill, "project instructions" means the first of these files that exists in the project root:
 `.github/copilot-instructions.md`, `AGENTS.md`, or `CLAUDE.md`.
@@ -52,13 +57,13 @@ To do this, follow these steps precisely:
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v2.6.0 - Plan cycle              |
+   |  Plan Critique v2.6.1 - Plan cycle              |
    +-------------------------------------------------+
    ```
 2. Read `.copilot/plan-critique-config.json` and get `plansFolder` path from settings.
    If that file does not exist, read `.claude/plan-critique-config.json` instead, so a project already using the
    Claude Code plugin keeps the same plans folder.
-   If neither file exists or `plansFolder` is not set:
+   If neither file exists or `plansFolder` is not set or is an empty string:
    - Ask the user: "Where would you like to store your plans? Provide a folder path (default `.planning`):".
      By default, the user should be presented with the option `.planning`.
    - Save the path as `plansFolder` in `.copilot/plan-critique-config.json`
@@ -135,6 +140,11 @@ To do this, follow these steps precisely:
       - Apply an UNVERIFIED finding only when it clarifies the plan and cannot lose information. Ask about it
         otherwise.
       - Skip any finding whose evidence is missing.
+      - Verify each edit before you write it. Run any command the finding puts into a `Verification` section and
+        confirm it passes on the current tree and can fail, and check every path and line number the edit
+        introduces. Do not carry a line range or an index from the critique into the plan when the chapter will
+        change the lines it points at: anchor to a heading, a fence or a symbol instead. When the edit does not
+        survive this check, ask the user rather than merging it.
       - Keep the `Affected files` and `Verification` sections in every chapter.
       - When the critique recommends splitting the plan, do not split it. Record the recommendation as an open
         item for the approval gate.

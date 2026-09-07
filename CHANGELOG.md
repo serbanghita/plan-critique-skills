@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2026-09-07
+
+### Fixed
+- `cycle` now verifies what it merges. A suggested solution is treated as a claim: the command is run before it
+  is written into a `Verification` section, every line reference in the edit is checked against the file it
+  names, and a line range or index is never carried into the plan when the chapter will move the lines it points
+  at. An edit that does not survive the check is put to the user instead of merged. Found by running the skill on
+  a real plan, where two consecutive iterations were spent repairing commands the previous merge had introduced.
+- All five skills treat a `plansFolder` set to an empty string as not configured. `create` and `cycle` prompt for
+  a folder, and `critique`, `execute` and `archive` report that none is configured, instead of resolving paths
+  against an empty base.
+
+### Changed
+- `cycle` allowed-tools now grant `Bash`, needed to run a verification command before merging it. The phase stays
+  read-only by rule: it never builds, installs, migrates, commits, or writes anywhere outside the plan folder.
+
 ## [2.6.0] - 2026-09-07
 
 ### Added

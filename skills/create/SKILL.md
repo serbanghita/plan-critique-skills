@@ -27,11 +27,11 @@ To do this, follow these steps precisely:
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v2.6.0 - Creating new plan       |
+   |  Plan Critique v2.6.1 - Creating new plan       |
    +-------------------------------------------------+
    ```
 2. Read `.claude/plan-critique-config.json` and get `plansFolder` path from settings.
-   If the file doesn't exist or `plansFolder` is not set:
+   If the file doesn't exist or `plansFolder` is not set or is an empty string:
    - Ask the user: "Where would you like to store your plans? Provide a folder path (default `.planning`):".
      By default, the user should be presented with the option `.planning`.
    - Save the path as `plansFolder` in `.claude/plan-critique-config.json`

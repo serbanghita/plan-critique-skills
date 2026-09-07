@@ -26,14 +26,17 @@ These rules bind this phase and override any step below that conflicts with them
    Label everything else UNVERIFIED and state what you could not check and why.
 3. Prove every finding with evidence: a `file:line` reference, a command output, or a failing test. Never assert
    a plausible but unverified conclusion, and never present a guess as a fact.
-4. Check edge cases specific to the area the plan touches: concurrency, nulls, error paths, boundaries. A generic
+4. Cite `plan.md` line numbers only from the copy you read in this run. Re-read `plan.md` before writing the
+   critique and check that each line reference points at the text you describe. Merging a critique into the plan
+   shifts every line below the merge point, so numbers carried over from an earlier iteration are wrong.
+5. Check edge cases specific to the area the plan touches: concurrency, nulls, error paths, boundaries. A generic
    "find bugs" pass over the plan is not enough.
-5. Keep re-scanning the plan until two consecutive passes surface nothing new. Stop at that point, not before.
-6. Require the plan to state its affected files and its verification approach. When a chapter is missing either
+6. Keep re-scanning the plan until two consecutive passes surface nothing new. Stop at that point, not before.
+7. Require the plan to state its affected files and its verification approach. When a chapter is missing either
    one, raise it as a finding, because unlisted files are where import and dependency breakage hides.
-7. Do not edit project code or `plan.md` during this phase. This phase writes `critique.md` only. The user
+8. Do not edit project code or `plan.md` during this phase. This phase writes `critique.md` only. The user
    decides what moves into the plan.
-8. Be brief. No filler, no preamble, no emojis, no em dashes, no bold or italic text.
+9. Be brief. No filler, no preamble, no emojis, no em dashes, no bold or italic text.
 
 To do this, follow these steps precisely:
 

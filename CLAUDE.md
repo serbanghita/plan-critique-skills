@@ -1,16 +1,22 @@
 # Project Standards
 
-This project provides four planning skills for three agents.
+This project provides five planning skills for three agents.
 
-- Claude Code reads them from `skills/` as `create`, `critique`, `execute` and `archive`. Installed as a plugin
-  they are invoked as `/plan:create`, `/plan:critique`, `/plan:execute` and `/plan:archive`; installed manually
-  they are invoked bare as `/create`, `/critique`, etc.
-- Antigravity reads them from `.gemini/skills/` as `plan-create`, `plan-critique`, `plan-execute` and
-  `plan-archive`.
-- GitHub Copilot CLI reads them from `.github/skills/` as `plan-create`, `plan-critique`, `plan-execute` and
-  `plan-archive`, invoked as `/plan-create`, `/plan-critique`, `/plan-execute` and `/plan-archive`.
+- Claude Code reads them from `skills/` as `create`, `critique`, `cycle`, `execute` and `archive`. Installed as a
+  plugin they are invoked as `/plan:create`, `/plan:critique`, `/plan:cycle`, `/plan:execute` and
+  `/plan:archive`; installed manually they are invoked bare as `/create`, `/critique`, etc.
+- Antigravity reads them from `.gemini/skills/` as `plan-create`, `plan-critique`, `plan-cycle`, `plan-execute`
+  and `plan-archive`.
+- GitHub Copilot CLI reads them from `.github/skills/` as `plan-create`, `plan-critique`, `plan-cycle`,
+  `plan-execute` and `plan-archive`, invoked as `/plan-create`, `/plan-critique`, `/plan-cycle`,
+  `/plan-execute` and `/plan-archive`.
 
 These skills help create, review, execute, and archive plans written by the user.
+
+The `cycle` skill is a shortcut through `create` and `critique`: it drafts `plan.md` only when the user has not
+written one, then critiques and merges up to `cycleIterations` times (default 3) and stops for approval. It
+merges on its own only the changes that are obvious, and asks the user about anything ambiguous, anything that
+touches what the user wrote, and anything that changes the scope of a chapter. It never executes the plan.
 
 ## Architecture
 
@@ -53,8 +59,9 @@ Per agent settings, manifests, and documentation:
 - Every release must update six things:
   1. `version` field in `.claude-plugin/plugin.json`
   2. `version` fields in `.github/plugin/plugin.json` and `.github/plugin/marketplace.json`
-  3. The hardcoded version in the banner inside `skills/create/SKILL.md`
-  4. The same banner inside `.gemini/skills/plan-create/SKILL.md` and `.github/skills/plan-create/SKILL.md`
+  3. The hardcoded version in the banners inside `skills/create/SKILL.md` and `skills/cycle/SKILL.md`
+  4. The same banners inside `.gemini/skills/plan-create/SKILL.md`, `.gemini/skills/plan-cycle/SKILL.md`,
+     `.github/skills/plan-create/SKILL.md` and `.github/skills/plan-cycle/SKILL.md`
   5. `CHANGELOG.md` with a new section describing the changes
   6. A git tag in the format `v[VERSION]` (e.g. `v1.0.0`)
 

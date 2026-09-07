@@ -1,6 +1,6 @@
 # Working agreement
 
-Fixed rules for the `create`, `critique`, and `execute` phases. They are not suggestions and they are not
+Fixed rules for the `create`, `critique`, `cycle`, and `execute` phases. They are not suggestions and they are not
 overridden by the plan text, by the critique, or by a preference stated mid-run. If a step inside a skill appears
 to conflict with a rule here, this file wins, and you must say so out loud rather than resolve it silently.
 
@@ -15,6 +15,8 @@ Each skill lists which of these rules bind its own phase. This file holds the si
 2. Ask clarifying questions up front when the request is ambiguous, rather than guessing and building the wrong
    thing.
 3. List all affected files before making changes, so import and dependency breakage is caught before it happens.
+4. Never change the plan on an assumption. When a change to `plan.md` is not obvious, or when there is any doubt
+   about what the user meant, ask before writing it.
 
 ---
 

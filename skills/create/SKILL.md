@@ -27,7 +27,7 @@ To do this, follow these steps precisely:
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v2.5.1 - Creating new plan       |
+   |  Plan Critique v2.6.0 - Creating new plan       |
    +-------------------------------------------------+
    ```
 2. Read `.claude/plan-critique-config.json` and get `plansFolder` path from settings.

@@ -53,6 +53,7 @@ rm -rf plan-critique-skills
 Copilot CLI skills carry the `plan-` prefix:
 - `/plan-create` - Create a new plan folder with `plan.md` template
 - `/plan-critique` - Adversarial review of `plan.md`, generating `critique.md`
+- `/plan-cycle` - Draft, critique and merge in one loop, then stop for approval
 - `/plan-execute` - Step-by-step verified execution with progress tracking
 - `/plan-archive` - Move completed plan to `.planning/archived/`
 
@@ -64,11 +65,14 @@ Settings are stored in `.copilot/plan-critique-config.json` with fallback to `.c
 
 ```json
 {
-  "plansFolder": ".planning"
+  "plansFolder": ".planning",
+  "cycleIterations": 3
 }
 ```
 
 - If `plansFolder` is not set, `/plan-create` prompts for the location (default: `.planning`).
+- `cycleIterations` is optional and only read by `/plan-cycle`. It caps the critique and merge iterations of one
+  run. Default `3`, valid range 1 to 5.
 - Project standards are read from `.github/copilot-instructions.md`, `AGENTS.md`, or `CLAUDE.md`.
 - Standing rules are read from `working-agreement.md` located in the plugin or project root.
 
@@ -105,6 +109,26 @@ Settings are stored in `.copilot/plan-critique-config.json` with fallback to `.c
    /plan-archive
    ```
    Moves completed plan to `.planning/archived/implement-caching/`.
+
+---
+
+## One-pass cycle
+
+`/plan-cycle` runs steps 1 to 4 of the workflow above in a single pass and stops before execution:
+
+```
+/plan-cycle "Implement Caching"
+```
+
+- Creates the plan folder when the name does not match an existing plan.
+- Drafts `plan.md` only when it is empty or still the unedited template. A plan you wrote is never overwritten.
+- Critiques and merges up to `cycleIterations` times, stopping early when an iteration finds nothing new.
+- Merges on its own only what is obvious. Anything ambiguous, anything that touches what you wrote, and
+  anything that changes the scope of a chapter is put to you as a question before it is written.
+- Records every merged finding, every question and its answer, and every skipped finding in `cycle-log.md`,
+  then stops and waits for your approval.
+
+It never executes the plan. Run `/plan-execute` yourself once the plan looks right.
 
 ---
 

@@ -26,6 +26,7 @@ const expectedNames = [
   "plan-archive",
   "plan-create",
   "plan-critique",
+  "plan-cycle",
   "plan-execute",
 ];
 const skills = JSON.parse(fs.readFileSync(skillsPath, "utf8"));

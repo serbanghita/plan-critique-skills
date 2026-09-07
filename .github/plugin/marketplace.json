@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Plugins by Serban Ghita, including the Plan & Critique planning workflow.",
-    "version": "2.5.1"
+    "version": "2.6.0"
   },
   "plugins": [
     {
       "name": "plan",
       "source": "./",
       "description": "Iterative plan review and execution workflow for GitHub Copilot CLI",
-      "version": "2.5.1",
+      "version": "2.6.0",
       "license": "MIT",
       "keywords": ["planning", "critique", "workflow", "review", "execution"],
       "skills": [".github/skills"]

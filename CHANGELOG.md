@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-09-07
+
+### Added
+- New `cycle` skill (`/plan:cycle`, `/plan-cycle`) that runs the whole planning loop in one pass: it drafts
+  `plan.md` only when the plan is empty or still the unedited template, critiques and merges the findings up to
+  `cycleIterations` times (default 3, range 1 to 5), stops early when an iteration finds nothing new, and always
+  stops at an approval gate without executing anything. Added to the Claude Code, Antigravity and Copilot skill
+  trees.
+- `cycle` merges on its own only the changes that are obvious. An ambiguous finding, one that touches a
+  requirement the user wrote, one that changes the scope or the intent of a chapter, or two findings that pull in
+  different directions are put to the user as a question before anything is written to `plan.md`.
+- `cycle-log.md`, written by the `cycle` skill, recording per iteration which findings were merged into the plan,
+  which were put to the user with the answer received, and which were skipped with the reason. Merging is never
+  silent and a change is never guessed.
+- Optional `cycleIterations` setting in `plan-critique-config.json`, read only by the `cycle` skill.
+- Working agreement planning rule 4: a change to `plan.md` is never made on an assumption. When the change is
+  not obvious, or there is any doubt about what the user meant, ask before writing it.
+- `critique` fixed rule 4: `plan.md` line numbers may be cited only from the copy read in the current run, and
+  every line reference must be checked against the text it describes before the critique is written. Merging a
+  critique into the plan shifts every line below the merge point, so numbers carried over from an earlier
+  iteration are wrong. Added to the Claude Code, Antigravity and Copilot skill trees.
+
 ## [2.5.1] - 2026-08-08
 
 ### Added

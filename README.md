@@ -27,7 +27,7 @@ Add the marketplace and install the plugin from within Claude Code:
 ```
 
 Installed as a plugin, skills are namespaced under `plan`:
-`/plan:create`, `/plan:critique`, `/plan:execute`, `/plan:archive`.
+`/plan:create`, `/plan:critique`, `/plan:cycle`, `/plan:execute`, `/plan:archive`.
 
 Manual install via git clone:
 
@@ -39,7 +39,7 @@ cp plan-critique-skills/working-agreement.md .claude/ && \
 rm -rf plan-critique-skills
 ```
 
-Manual install skills are invoked bare: `/create`, `/critique`, `/execute`, `/archive`.
+Manual install skills are invoked bare: `/create`, `/critique`, `/cycle`, `/execute`, `/archive`.
 
 See the [Claude Code Guide](docs/claude-code.md) for full configuration details.
 
@@ -65,7 +65,7 @@ rm -rf plan-critique-skills
 ```
 
 Agy skills carry the `plan-` prefix:
-`/plan-create`, `/plan-critique`, `/plan-execute`, `/plan-archive`.
+`/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive`.
 
 See the [Agy Guide](docs/agy.md) for full configuration details.
 
@@ -91,7 +91,7 @@ rm -rf plan-critique-skills
 ```
 
 Copilot skills carry the `plan-` prefix:
-`/plan-create`, `/plan-critique`, `/plan-execute`, `/plan-archive`.
+`/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive`.
 
 Verify with `copilot skill list`, and reload during a session with `/skills reload`.
 
@@ -103,8 +103,8 @@ See the [GitHub Copilot CLI Guide](docs/copilot.md) for full configuration detai
 
 | Feature | Claude Code | Agy (Gemini CLI) | GitHub Copilot CLI |
 | :--- | :--- | :--- | :--- |
-| **Plugin Skill Names** | `/plan:create`, `/plan:critique`, `/plan:execute`, `/plan:archive` | `/plan-create`, `/plan-critique`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-execute`, `/plan-archive` |
-| **Manual Skill Names** | `/create`, `/critique`, `/execute`, `/archive` | `/plan-create`, `/plan-critique`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-execute`, `/plan-archive` |
+| **Plugin Skill Names** | `/plan:create`, `/plan:critique`, `/plan:cycle`, `/plan:execute`, `/plan:archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
+| **Manual Skill Names** | `/create`, `/critique`, `/cycle`, `/execute`, `/archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
 | **Skill Storage** | `skills/` or `.claude/skills/` | `.gemini/skills/` or `~/.gemini/config/skills/` | `.github/skills/` |
 | **Config File** | `.claude/plan-critique-config.json` | `.gemini/plan-critique-config.json` (fallback `.claude/`) | `.copilot/plan-critique-config.json` (fallback `.claude/`) |
 | **Session Key** | `$PPID` (process ID) | `$PPID` (process ID) | `COPILOT_AGENT_SESSION_ID` |
@@ -131,6 +131,10 @@ The flow is identical across all agents:
 5. Execute the plan step by step with verification.
 6. Archive the completed plan.
 
+Steps 1 to 4 can also be run in one pass with the `cycle` skill, which drafts the plan only when you have not
+written one, then critiques and merges up to three times and stops for your approval before anything is executed.
+It merges only the obvious changes on its own and asks you about the rest.
+
 ---
 
 ## Usage
@@ -149,17 +153,19 @@ The flow is identical across all agents:
 | :--- | :--- | :--- |
 | **create** | Initialize | Create a new plan directory in `[plansFolder]/[plan name]/plan.md`. |
 | **critique** | Review | Adversarial review of the plan. Produces `critique.md` with verified evidence. |
+| **cycle** | Loop | Draft (only if needed), critique and merge up to `cycleIterations` times, asking before any non-obvious change, then stop for approval. |
 | **execute** | Implementation | Parse the plan into steps, confirm, and execute each step with verification. |
 | **archive** | Finalize | Move completed plan to `[plansFolder]/archived/` and clean up. |
 
 ### Working agreement
 
-`working-agreement.md` holds standing rules that bind the create, critique, and execute phases. They are read at
+`working-agreement.md` holds standing rules that bind the create, critique, cycle, and execute phases. They are read at
 the start of each run and override any conflicting instruction inside the skill:
 
 - Critique is adversarial: Every finding carries a confidence grade (`CONFIRMED` or `UNVERIFIED`) and proof.
 - Execution is tests-first where the project has a test suite.
 - Every plan chapter must state affected files and verification steps.
+- Changes to the plan are never assumed: anything not obvious is put to you as a question first.
 - Output style: brief, plain English, no emojis, no em dashes, no truncated code.
 - Git: no co-author trailers (`Co-Authored-By`), commit only when requested.
 
@@ -199,6 +205,7 @@ Token cost estimates for skills:
 - On-invoke cost: Paid when a skill executes (`SKILL.md` body loads).
   - Create: ~1.3k tokens
   - Critique: ~3.1k tokens
+  - Cycle: ~2.3k tokens for the skill body, plus one critique pass per iteration
   - Execute: ~4.8k tokens
   - Archive: ~1.3k tokens
 - `working-agreement.md`: Adds ~700 tokens on invoke to create, critique, and execute runs.

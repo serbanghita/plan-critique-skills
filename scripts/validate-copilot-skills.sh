@@ -90,9 +90,13 @@ assert_skills plugin "$temporary_root/plugin-skills.json"
 manual_home="$temporary_root/manual-home"
 manual_project="$temporary_root/manual-project"
 configure_copilot_home "$manual_home"
-mkdir -p "$manual_project/.github/skills"
-cp -R "$repository_root/.github/skills/." "$manual_project/.github/skills/"
-cp "$repository_root/working-agreement.md" "$manual_project/"
+mkdir -p "$manual_project/.github"
+ln -s "$repository_root/.github/skills" "$manual_project/.github/skills"
+ln -s "$repository_root/working-agreement.md" "$manual_project/.github/working-agreement.md"
+
+test -L "$manual_project/.github/skills"
+test -L "$manual_project/.github/working-agreement.md"
+test -f "$manual_project/.github/skills/plan-create/../../../working-agreement.md"
 
 (
   cd "$manual_project"

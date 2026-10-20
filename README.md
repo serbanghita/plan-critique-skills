@@ -84,7 +84,27 @@ See the [Agy Guide](docs/agy.md) for full configuration details.
 
 ### GitHub Copilot CLI
 
-Add the marketplace and install the plugin from your terminal:
+Clone the repository to a permanent location:
+
+```bash
+git clone https://github.com/serbanghita/plan-critique-skills.git ~/work/plan-critique-skills
+```
+
+Link its skills and working agreement into the project. This expects `.github/skills` not to already exist:
+
+```bash
+mkdir -p .github && \
+ln -s ~/work/plan-critique-skills/.github/skills .github/skills && \
+ln -s ~/work/plan-critique-skills/working-agreement.md .github/working-agreement.md
+```
+
+Copilot skills carry the `plan-` prefix:
+`/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive`.
+
+To update, run `git -C ~/work/plan-critique-skills pull`, then `/skills reload` in the active Copilot session.
+Verify the linked skills with `copilot skill list`.
+
+Marketplace installation remains available:
 
 ```bash
 copilot plugin marketplace add serbanghita/plan-critique-skills
@@ -92,21 +112,6 @@ copilot plugin install plan@serbanghita
 ```
 
 The same commands work from within an active session as `/plugin marketplace add ...` and `/plugin install ...`.
-
-Manual install via git clone:
-
-```bash
-git clone https://github.com/serbanghita/plan-critique-skills.git && \
-mkdir -p .github/skills && \
-cp -r plan-critique-skills/.github/skills/* .github/skills/ && \
-cp plan-critique-skills/working-agreement.md . && \
-rm -rf plan-critique-skills
-```
-
-Copilot skills carry the `plan-` prefix:
-`/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive`.
-
-Verify with `copilot skill list`, and reload during a session with `/skills reload`.
 
 See the [GitHub Copilot CLI Guide](docs/copilot.md) for full configuration details.
 
@@ -118,7 +123,7 @@ See the [GitHub Copilot CLI Guide](docs/copilot.md) for full configuration detai
 | :--- | :--- | :--- | :--- |
 | **Plugin Skill Names** | `/plan:create`, `/plan:critique`, `/plan:cycle`, `/plan:execute`, `/plan:archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
 | **Manual Skill Names** | `/create`, `/critique`, `/cycle`, `/execute`, `/archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
-| **Skill Storage** | `skills/` or `.claude/skills/` | `.agents/skills.json` or `~/.gemini/config/skills.json` (`.agents/skills/` or `~/.gemini/config/skills/`) | `.github/skills/` |
+| **Skill Storage** | `skills/` or `.claude/skills/` | `.agents/skills.json` or `~/.gemini/config/skills.json` (`.agents/skills/` or `~/.gemini/config/skills/`) | Linked `.github/skills/` |
 | **Config File** | `.claude/plan-critique-config.json` | `.gemini/plan-critique-config.json` (fallback `.claude/`) | `.copilot/plan-critique-config.json` (fallback `.claude/`) |
 | **Session Key** | `$PPID` (process ID) | `$PPID` (process ID) | `COPILOT_AGENT_SESSION_ID` |
 | **Project Standards** | `CLAUDE.md` | `GEMINI.md`, `AGENTS.md`, `CLAUDE.md` | `.github/copilot-instructions.md`, `AGENTS.md`, `CLAUDE.md` |

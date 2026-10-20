@@ -6,7 +6,39 @@ Iterative, adversarial plan review and execution skills for GitHub Copilot CLI.
 
 ## Install
 
-### Option 1: Marketplace install (recommended)
+### Option 1: Linked checkout (recommended)
+
+Clone the repository to a permanent location:
+
+```bash
+git clone https://github.com/serbanghita/plan-critique-skills.git ~/work/plan-critique-skills
+```
+
+Link its skills and working agreement into the project. This expects `.github/skills` not to already exist:
+
+```bash
+mkdir -p .github && \
+ln -s ~/work/plan-critique-skills/.github/skills .github/skills && \
+ln -s ~/work/plan-critique-skills/working-agreement.md .github/working-agreement.md
+```
+
+To update, pull the clone and reload skills in the active Copilot session:
+
+```bash
+git -C ~/work/plan-critique-skills pull
+```
+
+```
+/skills reload
+```
+
+Verify the linked skills:
+
+```bash
+copilot skill list
+```
+
+### Option 2: Marketplace install
 
 Add the marketplace and install the plugin from your terminal:
 
@@ -20,30 +52,6 @@ Or from within an active Copilot session:
 ```
 /plugin marketplace add serbanghita/plan-critique-skills
 /plugin install plan@serbanghita
-```
-
-Verify installed skills:
-
-```bash
-copilot skill list
-```
-
-Reload skills during a session:
-
-```
-/skills reload
-```
-
-### Option 2: Manual install
-
-Clone the repository and copy the skills and working agreement:
-
-```bash
-git clone https://github.com/serbanghita/plan-critique-skills.git && \
-mkdir -p .github/skills && \
-cp -r plan-critique-skills/.github/skills/* .github/skills/ && \
-cp plan-critique-skills/working-agreement.md . && \
-rm -rf plan-critique-skills
 ```
 
 ---

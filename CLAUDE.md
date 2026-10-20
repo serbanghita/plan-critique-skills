@@ -5,8 +5,8 @@ This project provides five planning skills for three agents.
 - Claude Code reads them from `skills/` as `create`, `critique`, `cycle`, `execute` and `archive`. Installed as a
   plugin they are invoked as `/plan:create`, `/plan:critique`, `/plan:cycle`, `/plan:execute` and
   `/plan:archive`; installed manually they are invoked bare as `/create`, `/critique`, etc.
-- Antigravity reads them from `.gemini/skills/` as `plan-create`, `plan-critique`, `plan-cycle`, `plan-execute`
-  and `plan-archive`.
+- Antigravity reads them from `.gemini/skills/` (registered via `.agents/skills.json` or `~/.gemini/config/skills.json`)
+  as `plan-create`, `plan-critique`, `plan-cycle`, `plan-execute` and `plan-archive`.
 - GitHub Copilot CLI reads them from `.github/skills/` as `plan-create`, `plan-critique`, `plan-cycle`,
   `plan-execute` and `plan-archive`, invoked as `/plan-create`, `/plan-critique`, `/plan-cycle`,
   `/plan-execute` and `/plan-archive`.

@@ -6,27 +6,48 @@ Iterative, adversarial plan review and execution skills for Agy (Gemini CLI) and
 
 ## Install
 
-### Option 1: Workspace installation (recommended)
-
-Install the skills directly in your project repository under `.gemini/skills/`:
+Clone the repository locally to a permanent directory (for example `~/work/plan-critique-skills`) so you can pull updates later:
 
 ```bash
-git clone https://github.com/serbanghita/plan-critique-skills.git && \
-mkdir -p .gemini/skills && \
-cp -r plan-critique-skills/.gemini/skills/* .gemini/skills/ && \
-cp plan-critique-skills/working-agreement.md .gemini/ && \
-rm -rf plan-critique-skills
+git clone https://github.com/serbanghita/plan-critique-skills.git ~/work/plan-critique-skills
+```
+
+### Option 1: Workspace installation (recommended)
+
+Register the skills in your project repository via `.agents/skills.json`:
+
+```bash
+mkdir -p .agents && \
+cat << 'EOF' > .agents/skills.json
+{
+  "entries": [
+    { "path": "~/work/plan-critique-skills/.gemini/skills" }
+  ]
+}
+EOF
 ```
 
 ### Option 2: Global installation
 
-Install the skills globally so they are available in every project workspace:
+Register the skills globally in `~/.gemini/config/skills.json` so they are available in every project workspace:
 
 ```bash
-git clone https://github.com/serbanghita/plan-critique-skills.git && \
-mkdir -p ~/.gemini/config/skills && \
-cp -r plan-critique-skills/.gemini/skills/* ~/.gemini/config/skills/ && \
-rm -rf plan-critique-skills
+mkdir -p ~/.gemini/config && \
+cat << 'EOF' > ~/.gemini/config/skills.json
+{
+  "entries": [
+    { "path": "~/work/plan-critique-skills/.gemini/skills" }
+  ]
+}
+EOF
+```
+
+### Updating Skills
+
+Pull the latest changes in your local clone:
+
+```bash
+git -C ~/work/plan-critique-skills pull
 ```
 
 ---

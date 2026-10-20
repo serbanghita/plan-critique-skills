@@ -45,23 +45,36 @@ See the [Claude Code Guide](docs/claude-code.md) for full configuration details.
 
 ### Agy (Gemini CLI / Antigravity)
 
-Workspace installation (recommended):
+Clone the repository locally (for example `~/work/plan-critique-skills`) so you can update it later with `git pull`:
 
 ```bash
-git clone https://github.com/serbanghita/plan-critique-skills.git && \
-mkdir -p .gemini/skills && \
-cp -r plan-critique-skills/.gemini/skills/* .gemini/skills/ && \
-cp plan-critique-skills/working-agreement.md .gemini/ && \
-rm -rf plan-critique-skills
+git clone https://github.com/serbanghita/plan-critique-skills.git ~/work/plan-critique-skills
 ```
 
-Global installation (available in all workspaces):
+Workspace installation via `.agents/skills.json` (recommended):
 
 ```bash
-git clone https://github.com/serbanghita/plan-critique-skills.git && \
-mkdir -p ~/.gemini/config/skills && \
-cp -r plan-critique-skills/.gemini/skills/* ~/.gemini/config/skills/ && \
-rm -rf plan-critique-skills
+mkdir -p .agents && \
+cat << 'EOF' > .agents/skills.json
+{
+  "entries": [
+    { "path": "~/work/plan-critique-skills/.gemini/skills" }
+  ]
+}
+EOF
+```
+
+Global installation via `~/.gemini/config/skills.json` (available in all workspaces):
+
+```bash
+mkdir -p ~/.gemini/config && \
+cat << 'EOF' > ~/.gemini/config/skills.json
+{
+  "entries": [
+    { "path": "~/work/plan-critique-skills/.gemini/skills" }
+  ]
+}
+EOF
 ```
 
 Agy skills carry the `plan-` prefix:
@@ -105,7 +118,7 @@ See the [GitHub Copilot CLI Guide](docs/copilot.md) for full configuration detai
 | :--- | :--- | :--- | :--- |
 | **Plugin Skill Names** | `/plan:create`, `/plan:critique`, `/plan:cycle`, `/plan:execute`, `/plan:archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
 | **Manual Skill Names** | `/create`, `/critique`, `/cycle`, `/execute`, `/archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
-| **Skill Storage** | `skills/` or `.claude/skills/` | `.gemini/skills/` or `~/.gemini/config/skills/` | `.github/skills/` |
+| **Skill Storage** | `skills/` or `.claude/skills/` | `.agents/skills.json` or `~/.gemini/config/skills.json` (`.agents/skills/` or `~/.gemini/config/skills/`) | `.github/skills/` |
 | **Config File** | `.claude/plan-critique-config.json` | `.gemini/plan-critique-config.json` (fallback `.claude/`) | `.copilot/plan-critique-config.json` (fallback `.claude/`) |
 | **Session Key** | `$PPID` (process ID) | `$PPID` (process ID) | `COPILOT_AGENT_SESSION_ID` |
 | **Project Standards** | `CLAUDE.md` | `GEMINI.md`, `AGENTS.md`, `CLAUDE.md` | `.github/copilot-instructions.md`, `AGENTS.md`, `CLAUDE.md` |

@@ -9,9 +9,10 @@ You are executing the user's plan that has been iteratively refined.
 
 Fixed rules:
 
-Read the working agreement at [working-agreement.md](../../../working-agreement.md) before step 1 and follow it for
-the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
-`.gemini/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+Read the working agreement at [working-agreement.md](../../../skills/create/working-agreement.md) before step 1 and
+follow it for the whole run. If that path does not resolve, look for `../../../skills/create/working-agreement.md`
+in the project root, then in `.gemini/`. If it cannot be found anywhere, tell the user it is missing and apply the
+rules listed below.
 
 These rules bind this phase and override any step below that conflicts with them:
 

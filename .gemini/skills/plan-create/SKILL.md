@@ -9,9 +9,10 @@ You are creating a new plan folder for the user.
 
 Fixed rules:
 
-Read the working agreement at [working-agreement.md](../../../working-agreement.md) before step 1 and follow it for
-the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
-`.gemini/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+Read the working agreement at [working-agreement.md](../../../skills/create/working-agreement.md) before step 1 and
+follow it for the whole run. If that path does not resolve, look for `../../../skills/create/working-agreement.md`
+in the project root, then in `.gemini/`. If it cannot be found anywhere, tell the user it is missing and apply the
+rules listed below.
 
 These rules bind this phase and override any step below that conflicts with them:
 
@@ -28,7 +29,7 @@ To do this, follow these steps precisely:
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v2.6.1 - Creating new plan       |
+   |  Plan Critique v2.7.0 - Creating new plan       |
    +-------------------------------------------------+
    ```
 2. Read `.gemini/plan-critique-config.json` and get `plansFolder` path from settings.

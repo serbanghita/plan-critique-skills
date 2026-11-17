@@ -4,20 +4,19 @@ allowed-tools: >-
   Bash(git log:*), Bash(git diff:*), Bash(echo $PPID), Bash(kill -0:*), Bash(rm:*), Bash(mkdir:*)
 description: Critique the user's plan from plan.md
 disable-model-invocation: true
-model: opus
 effort: high
 ---
 
-You are performing an iterative review of the user's execution plan.
+This skill helps the user performing an iterative review of the execution of the plan.
 Critique the plan, code, architecture, system design, and design patterns.
 
-Fixed rules:
+## Working agreement
 
-Read the working agreement at [working-agreement.md](../../working-agreement.md) before step 1 and follow it for
-the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
-`.claude/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+Read the working agreement at [working-agreement.md](../create/working-agreement.md) before step 1 and follow it for
+the whole run. If that path does not resolve, look for `../create/working-agreement.md` in the project root. 
+If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
 
-These rules bind this phase and override any step below that conflicts with them:
+## Critique methodology
 
 1. Be adversarial. Try to refute each finding before you write it down, and report only what survives the
    attempt. A finding you could not refute is worth more than three you did not test.
@@ -35,14 +34,36 @@ These rules bind this phase and override any step below that conflicts with them
    one, raise it as a finding, because unlisted files are where import and dependency breakage hides.
 8. Do not edit project code or `plan.md` during this phase. This phase writes `critique.md` only. The user
    decides what moves into the plan.
-9. Be brief. No filler, no preamble, no emojis, no em dashes, no bold or italic text.
 
-To do this, follow these steps precisely:
+## Grading findings
+
+Grade each finding from 1 to 10 across six aspects:
+
+| Factor | 1-3 (Low) | 4-7 (Medium) | 8-10 (High) |
+| --- | --- | --- | --- |
+| Confidence | Weak guess; re-review required | Plausible, unverified; re-review | Verified (file:line / output) |
+| Priority | Cosmetic or minor cleanup | Causes rework if deferred | Fix at start of execution |
+| Complexity | Fast model, low effort | Standard model, moderate effort | Max model/effort; split task |
+| Blast radius | Single file or local function | Multiple modules or callers | Cross-cutting, API, or schema |
+| Ambiguity | Deterministic from codebase | Minor edge-case choice | Requires user design decision |
+| Verification | Existing unit test covers it | Needs new test or mock setup | Hard to test or manual check |
+
+Grading rules:
+
+- Confidence 1-7: run adversarial re-review before assigning the final score and `CONFIRMED` / `UNVERIFIED` label.
+- Priority 8-10: address at the beginning of the execution phase.
+- Complexity 8-10: rate by model + effort needed; consider splitting into smaller sub-tasks.
+- Blast radius 8-10: call out affected callers, contracts, or migrations explicitly.
+- Ambiguity 8-10: flag for user input instead of assuming a resolution.
+- Verification 8-10: specify concrete manual or integration checks when unit tests cannot cover it.
+
+
+## Critique steps
 
 1. Read `.claude/plan-critique-config.json`, get `plansFolder` path from settings. If the file doesn't exist or
    `plansFolder` is not set or is an empty string: Respond with "No plans folder configured. Run `/plan:create`
    first to set up."
-2. Get the Claude Code process ID by running: `echo $PPID`. Store this as `sessionPID`.
+2. Get the Agent process ID by running: `echo $PPID`. Store this as `sessionPID`.
 3. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that
    process is still running via `kill -0 [PID] 2>/dev/null`. If the command fails (process not running), delete that
    session file. This is non-blocking cleanup.
@@ -72,7 +93,7 @@ To do this, follow these steps precisely:
      Respond with "Create a `CLAUDE.md` file in the root of your project."
 10. Detect project languages and verify LSP availability. LSP is the required tool for code verification in
     this phase, so this check is mandatory:
-    - Detect the main project languages with Glob: `tsconfig.json`, `*.ts`, or `*.tsx` for TypeScript,
+    - Detect the main project languages with Glob: e.g. `tsconfig.json`, `*.ts`, or `*.tsx` for TypeScript,
       `composer.json` or `*.php` for PHP, and the equivalent markers for any other language the plan touches.
     - Probe LSP: pick a source file referenced by the plan (or any project source file) and request
       go-to-definition or hover on a known symbol using the LSP tool.

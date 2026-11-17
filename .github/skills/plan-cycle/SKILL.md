@@ -14,9 +14,10 @@ This skill never executes the plan. It ends at the approval gate.
 
 Fixed rules:
 
-Read the working agreement at [working-agreement.md](../../../working-agreement.md) before step 1 and follow it for
-the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
-`.github/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+Read the working agreement at [working-agreement.md](../../../skills/create/working-agreement.md) before step 1 and
+follow it for the whole run. If that path does not resolve, look for `../../../skills/create/working-agreement.md`
+in the project root, then in `.github/`. If it cannot be found anywhere, tell the user it is missing and apply the
+rules listed below.
 
 These rules bind this phase and override any step below that conflicts with them:
 
@@ -57,7 +58,7 @@ To do this, follow these steps precisely:
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v2.6.1 - Plan cycle              |
+   |  Plan Critique v2.7.0 - Plan cycle              |
    +-------------------------------------------------+
    ```
 2. Read `.copilot/plan-critique-config.json` and get `plansFolder` path from settings.

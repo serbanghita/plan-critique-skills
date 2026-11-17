@@ -12,9 +12,10 @@ Critique the plan, code, architecture, system design, and design patterns.
 
 Fixed rules:
 
-Read the working agreement at [working-agreement.md](../../../working-agreement.md) before step 1 and follow it
-for the whole run. If that path does not resolve, look for `working-agreement.md` in the project root, then in
-`.github/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+Read the working agreement at [working-agreement.md](../../../skills/create/working-agreement.md) before step 1 and
+follow it for the whole run. If that path does not resolve, look for `../../../skills/create/working-agreement.md`
+in the project root, then in `.github/`. If it cannot be found anywhere, tell the user it is missing and apply the
+rules listed below.
 
 These rules bind this phase and override any step below that conflicts with them:
 
@@ -38,6 +39,28 @@ These rules bind this phase and override any step below that conflicts with them
 
 In this skill, "project instructions" means the first of these files that exists in the project root:
 `.github/copilot-instructions.md`, `AGENTS.md`, or `CLAUDE.md`.
+
+## Grading findings
+
+Grade each finding from 1 to 10 across six aspects:
+
+| Factor | 1-3 (Low) | 4-7 (Medium) | 8-10 (High) |
+| --- | --- | --- | --- |
+| Confidence | Weak guess; re-review required | Plausible, unverified; re-review | Verified (file:line / output) |
+| Priority | Cosmetic or minor cleanup | Causes rework if deferred | Fix at start of execution |
+| Complexity | Fast model, low effort | Standard model, moderate effort | Max model/effort; split task |
+| Blast radius | Single file or local function | Multiple modules or callers | Cross-cutting, API, or schema |
+| Ambiguity | Deterministic from codebase | Minor edge-case choice | Requires user design decision |
+| Verification | Existing unit test covers it | Needs new test or mock setup | Hard to test or manual check |
+
+Grading rules:
+
+- Confidence 1-7: run adversarial re-review before assigning the final score and `CONFIRMED` / `UNVERIFIED` label.
+- Priority 8-10: address at the beginning of the execution phase.
+- Complexity 8-10: rate by model + effort needed; consider splitting into smaller sub-tasks.
+- Blast radius 8-10: call out affected callers, contracts, or migrations explicitly.
+- Ambiguity 8-10: flag for user input instead of assuming a resolution.
+- Verification 8-10: specify concrete manual or integration checks when unit tests cannot cover it.
 
 To do this, follow these steps precisely:
 

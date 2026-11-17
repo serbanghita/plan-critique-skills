@@ -78,7 +78,7 @@ Settings are stored in `.gemini/plan-critique-config.json` with fallback to `.cl
 - `cycleIterations` is optional and only read by `/plan-cycle`. It caps the critique and merge iterations of one
   run. Default `3`, valid range 1 to 5.
 - Project standards are read from `GEMINI.md`, `AGENTS.md`, or `CLAUDE.md` in the project root.
-- Standing rules are read from `working-agreement.md` located in `.gemini/` or the project root.
+- Standing rules are read from `../skills/create/working-agreement.md` located in `.gemini/` or the project root.
 
 ---
 

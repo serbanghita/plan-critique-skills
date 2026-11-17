@@ -177,7 +177,7 @@ It merges only the obvious changes on its own and asks you about the rest.
 
 ### Working agreement
 
-`working-agreement.md` holds standing rules that bind the create, critique, cycle, and execute phases. They are read at
+`skills/create/working-agreement.md` holds standing rules that bind the create, critique, cycle, and execute phases. They are read at
 the start of each run and override any conflicting instruction inside the skill:
 
 - Critique is adversarial: Every finding carries a confidence grade (`CONFIRMED` or `UNVERIFIED`) and proof.
@@ -187,7 +187,7 @@ the start of each run and override any conflicting instruction inside the skill:
 - Output style: brief, plain English, no emojis, no em dashes, no truncated code.
 - Git: no co-author trailers (`Co-Authored-By`), commit only when requested.
 
-Edit `working-agreement.md` to customize rules for your team.
+Edit `skills/create/working-agreement.md` to customize rules for your team.
 
 ### Parallel Plans
 
@@ -226,7 +226,7 @@ Token cost estimates for skills:
   - Cycle: ~2.3k tokens for the skill body, plus one critique pass per iteration
   - Execute: ~4.8k tokens
   - Archive: ~1.3k tokens
-- `working-agreement.md`: Adds ~700 tokens on invoke to create, critique, and execute runs.
+- `skills/create/working-agreement.md`: Adds ~700 tokens on invoke to create, critique, and execute runs.
 
 ---
 

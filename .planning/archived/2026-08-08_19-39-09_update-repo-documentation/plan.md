@@ -70,12 +70,12 @@ Steps:
 
 Affected files:
 - `CLAUDE.md`
-- `working-agreement.md`
+- `../../../skills/create/working-agreement.md`
 
 Verification: Verify rule references and release checklist.
 
 Steps:
-1. Update `working-agreement.md` line 48 to include `GEMINI.md` in the durable project instruction files list (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, `.github/copilot-instructions.md`).
+1. Update `../../../skills/create/working-agreement.md` line 48 to include `GEMINI.md` in the durable project instruction files list (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, `.github/copilot-instructions.md`).
 2. Update `CLAUDE.md` to document the `docs/` sub-guides, multi-agent layout architecture, config fallback paths, and release checklist.
 
 ---

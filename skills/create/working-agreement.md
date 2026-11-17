@@ -12,8 +12,8 @@ Each skill lists which of these rules bind its own phase. This file holds the si
 
 1. Make a plan before writing code for anything non-trivial. Do not start implementing until the approach is
    stated and the user has accepted it.
-2. Ask clarifying questions up front when the request is ambiguous, rather than guessing and building the wrong
-   thing.
+2. DO NOT assume anything. Ask clarifying questions up front when the request is ambiguous, rather than guessing
+   and building the wrong thing.
 3. List all affected files before making changes, so import and dependency breakage is caught before it happens.
 4. Never change the plan on an assumption. When a change to `plan.md` is not obvious, or when there is any doubt
    about what the user meant, ask before writing it.
@@ -46,7 +46,7 @@ Each skill lists which of these rules bind its own phase. This file holds the si
 ## Context
 
 1. Re-read this file and the relevant project docs before touching an area, especially in long sessions.
-2. When corrected on something durable, propose adding it to the project instructions file (`CLAUDE.md`,
+2. When corrected on something durable, propose adding it to the project instructions file (`../../CLAUDE.md`,
    `GEMINI.md`, `AGENTS.md`, or `.github/copilot-instructions.md`) so it persists.
 
 ---

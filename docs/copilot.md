@@ -82,7 +82,7 @@ Settings are stored in `.copilot/plan-critique-config.json` with fallback to `.c
 - `cycleIterations` is optional and only read by `/plan-cycle`. It caps the critique and merge iterations of one
   run. Default `3`, valid range 1 to 5.
 - Project standards are read from `.github/copilot-instructions.md`, `AGENTS.md`, or `CLAUDE.md`.
-- Standing rules are read from `working-agreement.md` located in the plugin or project root.
+- Standing rules are read from `../skills/create/working-agreement.md` located in the plugin or project root.
 
 ---
 

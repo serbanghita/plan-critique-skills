@@ -51,7 +51,7 @@ Files changed: working-agreement.md, CLAUDE.md
 Tests: none detected, step unverified by tests
 
 Output:
-Added `GEMINI.md` to durable instructions files list in `working-agreement.md`.
+Added `GEMINI.md` to durable instructions files list in `../../../skills/create/working-agreement.md`.
 Updated `CLAUDE.md` to document the `docs/` sub-guides architecture.
 
 ---

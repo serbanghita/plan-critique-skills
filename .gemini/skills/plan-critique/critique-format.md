@@ -1,8 +1,8 @@
 This is the format the `critique` skill uses when writing `[plansFolder]/[selected-plan]/critique.md`.
 
-Every issue carries a `Confidence` and an `Evidence` line, as required by the working agreement. Use CONFIRMED
-only when the issue was verified against the codebase. Use UNVERIFIED otherwise, and say what could not be
-checked.
+Every issue carries a `Confidence`, 1-10 grades (per `Grading findings` in `SKILL.md`), and an `Evidence` line, as
+required by the working agreement. Use CONFIRMED only when the issue was verified against the codebase. Use
+UNVERIFIED otherwise, and say what could not be checked.
 
 ```markdown
 # [Title extracted from first H1 in plan.md, or "Untitled Plan"]
@@ -19,7 +19,12 @@ Iteration: [number]
 
 ## [Plan chapter title or Plan chapter title - specific issue]
 
-Confidence: [CONFIRMED | UNVERIFIED]
+Confidence: [CONFIRMED | UNVERIFIED] ([1-10]/10)
+Priority: [1-10]/10
+Complexity: [1-10]/10
+Blast radius: [1-10]/10
+Ambiguity: [1-10]/10
+Verification: [1-10]/10
 
 Description:    
 [Clear, concise summary of the issue]

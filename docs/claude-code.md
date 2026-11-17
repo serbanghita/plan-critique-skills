@@ -58,7 +58,7 @@ Settings are stored in `.claude/plan-critique-config.json`:
 - `cycleIterations` is optional and only read by `/plan:cycle`. It caps the critique and merge iterations of one
   run. Default `3`, valid range 1 to 5.
 - Project standards are read from `CLAUDE.md` in the project root.
-- Standing rules are read from `working-agreement.md` located in the plugin root or `.claude/`.
+- Standing rules are read from `../skills/create/working-agreement.md` located in the plugin root or `.claude/`.
 
 ---
 

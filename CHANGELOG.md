@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-11-18
+
+### Added
+- Authoring persona (Staff Engineer paired with a Technical Editor) and RFC/BLUF writing rules in `plan-template.md`
+  for LLM-drafted plans, with top-level `Goal`/`Non-goals` placeholders, numbered chapters (`## 1. [Title]`),
+  subchapter constraints, and `(create | modify | delete)` file action tags across `skills/`, `.gemini/skills/`,
+  and `.github/skills/`.
+- Six-factor, three-band (`1-3`, `4-7`, `8-10`) `Grading findings` rating table in `critique` / `plan-critique`
+  (`Confidence`, `Priority`, `Complexity`, `Blast radius`, `Ambiguity`, `Verification`) and matching 1-10 score
+  fields in `critique-format.md`.
+
+### Changed
+- Moved `working-agreement.md` into `skills/create/working-agreement.md` and updated skill and documentation paths,
+  with explicit `DO NOT assume anything` guidance in the planning rules.
+- Removed estimated time from the `Complexity` grading definition (`model + effort` only).
+- Updated `create` skill wording and confirmation output to guide manual and LLM-assisted plan creation.
+
 ## [2.6.1] - 2026-09-07
 
 ### Fixed
@@ -82,7 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The critique Summary now records when LSP was unavailable, so the user knows symbol verification relied on
   the Grep fallback.
 - Updated the README costs section with token figures measured at v2.2.0 and a note on the shared
-  `working-agreement.md` cost.
+  `skills/create/working-agreement.md` cost.
 
 ## [2.3.0] - 2026-07-30
 
@@ -110,7 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.2.0] - 2026-07-28
 
 ### Added
-- A `working-agreement.md` at the repository root holding standing rules for planning, verification, tests,
+- A `skills/create/working-agreement.md` at the repository root holding standing rules for planning, verification, tests,
   context, output style and git. It is the single canonical copy of the rule text.
 - `create`, `critique` and `execute` each open with a `Fixed rules` block that reads the working agreement and
   lists the rules binding that phase. The rules override any conflicting step in the skill body.
@@ -122,7 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than done. The execution log gains a `Tests` line per step and a `Verified by tests` summary count.
 
 ### Changed
-- Manual install now also copies `working-agreement.md` into `.claude/` so the skills can resolve it.
+- Manual install now also copies `skills/create/working-agreement.md` into `.claude/` so the skills can resolve it.
 
 ## [2.1.0] - 2026-07-28
 

@@ -57,7 +57,7 @@ To do this, follow these steps precisely:
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v2.7.0 - Plan cycle              |
+   |  Plan Critique v3.0.0 - Plan cycle              |
    +-------------------------------------------------+
    ```
 2. Resolve `plansFolder` from config:

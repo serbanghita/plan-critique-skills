@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-11-18
+
+### Changed
+- Consolidated Claude Code, Agy (Gemini CLI / Antigravity), and GitHub Copilot CLI onto a single canonical
+  `skills/` directory (`plan-create`, `plan-critique`, `plan-cycle`, `plan-execute`, `plan-archive`).
+- Unified runtime config resolution (active agent first with cross-fallback), project instructions lookup (native
+  file first, then `AGENTS.md` and `CLAUDE.md`), cross-platform session tracking (`COPILOT_AGENT_SESSION_ID` with
+  7-day non-PID cleanup vs `$PPID` with numeric-PID `kill -0`), and LSP/diagnostics fallbacks inside `skills/`.
+- Simplified `README.md` around a single `git clone`, global loading from `skills/` (zero copy-paste), and
+  `git pull` + `/skills reload` (or session restart / `/reload-plugins` in Claude Code). Moved per-project and
+  Marketplace/Plugin instructions into `docs/claude-code.md`, `docs/agy.md`, and `docs/copilot.md`.
+- Updated `.github/plugin/plugin.json`, `.github/plugin/marketplace.json`, `scripts/validate-copilot-skills.sh`,
+  and `CLAUDE.md` to reference `skills/`.
+
+### Removed
+- Removed duplicate `.gemini/skills/` and `.github/skills/` trees.
+
+### Breaking Changes
+- Skill folders renamed from `skills/{create,critique,cycle,execute,archive}` to `skills/plan-*`; existing
+  `.gemini/skills` or `.github/skills` symlinks/configs must be repointed to `skills/`.
+- Claude Code Marketplace plugin commands changed from `/plan:create`..`/plan:archive` to
+  `/plan:plan-create`..`/plan:plan-archive`, and manual/symlinked Claude Code commands changed from
+  `/create`..`/archive` to `/plan-create`..`/plan-archive`.
+
 ## [2.7.0] - 2026-11-18
 
 ### Added

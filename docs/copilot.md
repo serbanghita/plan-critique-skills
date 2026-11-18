@@ -6,20 +6,26 @@ Iterative, adversarial plan review and execution skills for GitHub Copilot CLI.
 
 ## Install
 
-### Option 1: Linked checkout (recommended)
-
 Clone the repository to a permanent location:
 
 ```bash
 git clone https://github.com/serbanghita/plan-critique-skills.git ~/work/plan-critique-skills
 ```
 
-Link its skills and working agreement into the project. This expects `.github/skills` not to already exist:
+### Option 1: Global load (recommended)
+
+Choose ONE of these global methods (do not use both, to avoid duplicate skill registration):
+
+Symlink each skill into `~/.agents/skills/`:
 
 ```bash
-mkdir -p .github && \
-ln -s ~/work/plan-critique-skills/.github/skills .github/skills && \
-ln -s ~/work/plan-critique-skills/working-agreement.md .github/working-agreement.md
+mkdir -p ~/.agents/skills && ln -s ~/work/plan-critique-skills/skills/* ~/.agents/skills/
+```
+
+Or add the `skills/` directory directly inside an active Copilot session:
+
+```
+/skills add ~/work/plan-critique-skills/skills
 ```
 
 To update, pull the clone and reload skills in the active Copilot session:
@@ -32,13 +38,21 @@ git -C ~/work/plan-critique-skills pull
 /skills reload
 ```
 
-Verify the linked skills:
+Verify loaded skills:
 
 ```bash
 copilot skill list
 ```
 
-### Option 2: Marketplace install
+### Option 2: Per-project linked checkout
+
+Link the repository's `skills/` folder into a single project. This expects `.github/skills` not to already exist:
+
+```bash
+mkdir -p .github && ln -s ~/work/plan-critique-skills/skills .github/skills
+```
+
+### Option 3: Marketplace install
 
 Add the marketplace and install the plugin from your terminal:
 
@@ -58,7 +72,6 @@ Or from within an active Copilot session:
 
 ## Available Skills
 
-Copilot CLI skills carry the `plan-` prefix:
 - `/plan-create` - Create a new plan folder with `plan.md` template
 - `/plan-critique` - Adversarial review of `plan.md`, generating `critique.md`
 - `/plan-cycle` - Draft, critique and merge in one loop, then stop for approval
@@ -69,7 +82,8 @@ Copilot CLI skills carry the `plan-` prefix:
 
 ## Configuration
 
-Settings are stored in `.copilot/plan-critique-config.json` with fallback to `.claude/plan-critique-config.json`:
+Settings are stored in `.copilot/plan-critique-config.json` with read fallback to `.claude/plan-critique-config.json`
+and `.gemini/plan-critique-config.json`:
 
 ```json
 {
@@ -78,11 +92,14 @@ Settings are stored in `.copilot/plan-critique-config.json` with fallback to `.c
 }
 ```
 
-- If `plansFolder` is not set, `/plan-create` prompts for the location (default: `.planning`).
+- If `plansFolder` is not set, `/plan-create` prompts for the location (default: `.planning`) and saves it to
+  `.copilot/plan-critique-config.json`.
 - `cycleIterations` is optional and only read by `/plan-cycle`. It caps the critique and merge iterations of one
   run. Default `3`, valid range 1 to 5.
-- Project standards are read from `.github/copilot-instructions.md`, `AGENTS.md`, or `CLAUDE.md`.
-- Standing rules are read from `../skills/create/working-agreement.md` located in the plugin or project root.
+- Project standards are resolved from `.github/copilot-instructions.md` first, falling back to `AGENTS.md` then
+  `CLAUDE.md`.
+- Standing rules are read from `skills/plan-create/working-agreement.md` (included inside the `plan-create` skill
+  folder).
 
 ---
 
@@ -145,5 +162,6 @@ It never executes the plan. Run `/plan-execute` yourself once the plan looks rig
 Each Copilot session tracks its active plan using the `COPILOT_AGENT_SESSION_ID` environment variable:
 - Session state is saved in `.planning/.sessions/[SESSION_ID]`.
 - When running `/plan-critique` or `/plan-execute`, your session plan is auto-selected.
-- Session files older than 7 days are cleaned up automatically without process-killing shell dependencies (Windows compatible).
+- Non-PID session files older than 7 days are cleaned up automatically without process-killing shell dependencies
+  (Windows compatible).
 - Add `.planning/.sessions/` to `.gitignore`.

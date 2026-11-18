@@ -6,37 +6,46 @@ Iterative, adversarial plan review and execution skills for Agy (Gemini CLI) and
 
 ## Install
 
-Clone the repository locally to a permanent directory (for example `~/work/plan-critique-skills`) so you can pull updates later:
+Clone the repository locally to a permanent directory (for example `~/work/plan-critique-skills`) so you can pull
+updates later:
 
 ```bash
 git clone https://github.com/serbanghita/plan-critique-skills.git ~/work/plan-critique-skills
 ```
 
-### Option 1: Workspace installation (recommended)
+### Option 1: Global installation (recommended)
 
-Register the skills in your project repository via `.agents/skills.json`:
+Choose ONE of these global methods (do not use both, to avoid duplicate skill registration):
+
+Symlink each skill into `~/.agents/skills/`:
 
 ```bash
-mkdir -p .agents && \
-cat << 'EOF' > .agents/skills.json
-{
-  "entries": [
-    { "path": "~/work/plan-critique-skills/.gemini/skills" }
-  ]
-}
-EOF
+mkdir -p ~/.agents/skills && ln -s ~/work/plan-critique-skills/skills/* ~/.agents/skills/
 ```
 
-### Option 2: Global installation
-
-Register the skills globally in `~/.gemini/config/skills.json` so they are available in every project workspace:
+Or register the `skills/` directory in `~/.gemini/config/skills.json`:
 
 ```bash
 mkdir -p ~/.gemini/config && \
 cat << 'EOF' > ~/.gemini/config/skills.json
 {
   "entries": [
-    { "path": "~/work/plan-critique-skills/.gemini/skills" }
+    { "path": "~/work/plan-critique-skills/skills" }
+  ]
+}
+EOF
+```
+
+### Option 2: Workspace installation
+
+Register the skills in a single project repository via `.agents/skills.json`:
+
+```bash
+mkdir -p .agents && \
+cat << 'EOF' > .agents/skills.json
+{
+  "entries": [
+    { "path": "~/work/plan-critique-skills/skills" }
   ]
 }
 EOF
@@ -44,17 +53,20 @@ EOF
 
 ### Updating Skills
 
-Pull the latest changes in your local clone:
+Pull the latest changes in your local clone and reload skills in your active session:
 
 ```bash
 git -C ~/work/plan-critique-skills pull
+```
+
+```
+/skills reload
 ```
 
 ---
 
 ## Available Skills
 
-The skills carry the `plan-` prefix:
 - `/plan-create` - Create a new plan folder with `plan.md` template
 - `/plan-critique` - Adversarial review of `plan.md`, generating `critique.md`
 - `/plan-cycle` - Draft, critique and merge in one loop, then stop for approval
@@ -65,7 +77,8 @@ The skills carry the `plan-` prefix:
 
 ## Configuration
 
-Settings are stored in `.gemini/plan-critique-config.json` with fallback to `.claude/plan-critique-config.json`:
+Settings are stored in `.gemini/plan-critique-config.json` with read fallback to `.claude/plan-critique-config.json`
+and `.copilot/plan-critique-config.json`:
 
 ```json
 {
@@ -74,11 +87,13 @@ Settings are stored in `.gemini/plan-critique-config.json` with fallback to `.cl
 }
 ```
 
-- If `plansFolder` is not set, `/plan-create` prompts for the location (default: `.planning`).
+- If `plansFolder` is not set, `/plan-create` prompts for the location (default: `.planning`) and saves it to
+  `.gemini/plan-critique-config.json`.
 - `cycleIterations` is optional and only read by `/plan-cycle`. It caps the critique and merge iterations of one
   run. Default `3`, valid range 1 to 5.
-- Project standards are read from `GEMINI.md`, `AGENTS.md`, or `CLAUDE.md` in the project root.
-- Standing rules are read from `../skills/create/working-agreement.md` located in `.gemini/` or the project root.
+- Project standards are resolved from `GEMINI.md` first, falling back to `AGENTS.md` then `CLAUDE.md`.
+- Standing rules are read from `skills/plan-create/working-agreement.md` (included inside the `plan-create` skill
+  folder).
 
 ---
 
@@ -141,5 +156,5 @@ It never executes the plan. Run `/plan-execute` yourself once the plan looks rig
 Each terminal session tracks its own active plan using the process ID (`$PPID`):
 - Session state is saved in `.planning/.sessions/[PID]`.
 - When running `/plan-critique` or `/plan-execute`, your session plan is auto-selected.
-- Stale session files from closed processes are cleaned up automatically via `kill -0 [PID]` checks.
+- Stale numeric-PID session files from closed processes are cleaned up automatically via `kill -0 [PID]` checks.
 - Add `.planning/.sessions/` to `.gitignore`.

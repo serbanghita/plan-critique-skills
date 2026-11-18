@@ -6,7 +6,42 @@ Iterative, adversarial plan review and execution skills for Claude Code.
 
 ## Install
 
-### Option 1: Marketplace install (recommended)
+Clone the repository once to a permanent location (no copy-paste required):
+
+```bash
+git clone https://github.com/serbanghita/plan-critique-skills.git ~/work/plan-critique-skills
+```
+
+### Option 1: Global symlink install (recommended)
+
+Link each skill directory into `~/.claude/skills/`:
+
+```bash
+mkdir -p ~/.claude/skills && ln -s ~/work/plan-critique-skills/skills/* ~/.claude/skills/
+```
+
+To update later, pull the clone and restart your Claude Code session:
+
+```bash
+git -C ~/work/plan-critique-skills pull
+```
+
+### Option 2: Per-project symlink install
+
+Link each skill directory into a single repository's `.claude/skills/`:
+
+```bash
+mkdir -p .claude/skills && ln -s ~/work/plan-critique-skills/skills/* .claude/skills/
+```
+
+Installed via global or per-project symlinks, skills are invoked as:
+- `/plan-create`
+- `/plan-critique`
+- `/plan-cycle`
+- `/plan-execute`
+- `/plan-archive`
+
+### Option 3: Marketplace install
 
 Add the marketplace and install the plugin from within Claude Code:
 
@@ -15,37 +50,21 @@ Add the marketplace and install the plugin from within Claude Code:
 /plugin install plan@serbanghita
 ```
 
-Installed as a plugin, skills are namespaced under the `plan` plugin name:
-- `/plan:create`
-- `/plan:critique`
-- `/plan:cycle`
-- `/plan:execute`
-- `/plan:archive`
+To refresh an installed plugin after updates, run `/reload-plugins` in Claude Code.
 
-### Option 2: Manual install
-
-Clone the repository and copy the skills and working agreement to `.claude/`:
-
-```bash
-git clone https://github.com/serbanghita/plan-critique-skills.git && \
-mkdir -p .claude/skills && \
-cp -r plan-critique-skills/skills/* .claude/skills/ && \
-cp plan-critique-skills/working-agreement.md .claude/ && \
-rm -rf plan-critique-skills
-```
-
-Installed manually, the skills are invoked without a namespace:
-- `/create`
-- `/critique`
-- `/cycle`
-- `/execute`
-- `/archive`
+Installed as a plugin (`"name": "plan"`), skills are namespaced under `plan`:
+- `/plan:plan-create`
+- `/plan:plan-critique`
+- `/plan:plan-cycle`
+- `/plan:plan-execute`
+- `/plan:plan-archive`
 
 ---
 
 ## Configuration
 
-Settings are stored in `.claude/plan-critique-config.json`:
+Settings are stored in `.claude/plan-critique-config.json`, with read fallback to `.gemini/plan-critique-config.json`
+and `.copilot/plan-critique-config.json`:
 
 ```json
 {
@@ -54,11 +73,13 @@ Settings are stored in `.claude/plan-critique-config.json`:
 }
 ```
 
-- If `plansFolder` is not set, `/plan:create` prompts for the location (default: `.planning`).
-- `cycleIterations` is optional and only read by `/plan:cycle`. It caps the critique and merge iterations of one
+- If `plansFolder` is not set, `/plan-create` prompts for the location (default: `.planning`) and saves it to
+  `.claude/plan-critique-config.json`.
+- `cycleIterations` is optional and only read by `/plan-cycle`. It caps the critique and merge iterations of one
   run. Default `3`, valid range 1 to 5.
-- Project standards are read from `CLAUDE.md` in the project root.
-- Standing rules are read from `../skills/create/working-agreement.md` located in the plugin root or `.claude/`.
+- Project instructions are resolved from `CLAUDE.md` first, falling back to `AGENTS.md`.
+- Standing rules are read from `skills/plan-create/working-agreement.md` (included automatically via the `plan-create`
+  skill folder).
 
 ---
 
@@ -66,7 +87,7 @@ Settings are stored in `.claude/plan-critique-config.json`:
 
 1. Create a plan:
    ```
-   /plan:create "Add User Authentication"
+   /plan-create "Add User Authentication"
    ```
    This creates `.planning/add-user-authentication/plan.md`.
 
@@ -75,33 +96,35 @@ Settings are stored in `.claude/plan-critique-config.json`:
 
 3. Critique the plan:
    ```
-   /plan:critique
+   /plan-critique
    ```
    Claude performs an adversarial review and writes `.planning/add-user-authentication/critique.md`.
 
 4. Iterate:
-   Update `plan.md` based on critique findings and run `/plan:critique` again until satisfied.
+   Update `plan.md` based on critique findings and run `/plan-critique` again until satisfied.
 
 5. Execute the plan:
    ```
-   /plan:execute
+   /plan-execute
    ```
    Executes each chapter step by step with verification and state tracking.
 
 6. Archive the plan:
    ```
-   /plan:archive
+   /plan-archive
    ```
    Moves completed plan to `.planning/archived/add-user-authentication/`.
+
+*(If installed via the Marketplace plugin, prefix commands with `plan:`, for example `/plan:plan-create`.)*
 
 ---
 
 ## One-pass cycle
 
-`/plan:cycle` runs steps 1 to 4 of the workflow above in a single pass and stops before execution:
+`/plan-cycle` runs steps 1 to 4 of the workflow above in a single pass and stops before execution:
 
 ```
-/plan:cycle "Add User Authentication"
+/plan-cycle "Add User Authentication"
 ```
 
 - Creates the plan folder when the name does not match an existing plan.
@@ -112,7 +135,7 @@ Settings are stored in `.claude/plan-critique-config.json`:
 - Records every merged finding, every question and its answer, and every skipped finding in `cycle-log.md`,
   then stops and waits for your approval.
 
-It never executes the plan. Run `/plan:execute` yourself once the plan looks right.
+It never executes the plan. Run `/plan-execute` yourself once the plan looks right.
 
 ---
 
@@ -120,6 +143,6 @@ It never executes the plan. Run `/plan:execute` yourself once the plan looks rig
 
 Each terminal session tracks its own active plan using the Claude Code process ID (`$PPID`):
 - Session state is saved in `.planning/.sessions/[PID]`.
-- When running `/plan:critique` or `/plan:execute`, your session plan is auto-selected.
-- Stale session files from closed processes are cleaned up automatically via `kill -0 [PID]` checks.
+- When running `/plan-critique` or `/plan-execute`, your session plan is auto-selected.
+- Stale numeric-PID session files from closed processes are cleaned up automatically via `kill -0 [PID]` checks.
 - Add `.planning/.sessions/` to `.gitignore`.

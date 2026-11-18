@@ -1,52 +1,55 @@
 # Project Standards
 
-This project provides five planning skills for three agents.
+This project provides five planning skills for three agents from a single canonical `skills/` tree:
 
-- Claude Code reads them from `skills/` as `create`, `critique`, `cycle`, `execute` and `archive`. Installed as a
-  plugin they are invoked as `/plan:create`, `/plan:critique`, `/plan:cycle`, `/plan:execute` and
-  `/plan:archive`; installed manually they are invoked bare as `/create`, `/critique`, etc.
-- Antigravity reads them from `.gemini/skills/` (registered via `.agents/skills.json` or `~/.gemini/config/skills.json`)
-  as `plan-create`, `plan-critique`, `plan-cycle`, `plan-execute` and `plan-archive`.
-- GitHub Copilot CLI reads them from `.github/skills/` as `plan-create`, `plan-critique`, `plan-cycle`,
-  `plan-execute` and `plan-archive`, invoked as `/plan-create`, `/plan-critique`, `/plan-cycle`,
-  `/plan-execute` and `/plan-archive`.
+- All three agents (Claude Code, Antigravity / Gemini CLI, and GitHub Copilot CLI) read from `skills/` as
+  `plan-create`, `plan-critique`, `plan-cycle`, `plan-execute`, and `plan-archive`.
+- Installed manually or via symlink/config (`~/.claude/skills/`, `~/.agents/skills/`, `~/.gemini/config/skills.json`,
+  or `/skills add`), skills are invoked as `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, and
+  `/plan-archive`.
+- Installed as a Claude Code plugin (`"name": "plan"`), skills are namespaced as `/plan:plan-create`,
+  `/plan:plan-critique`, `/plan:plan-cycle`, `/plan:plan-execute`, and `/plan:plan-archive`.
+- Installed as a Copilot CLI plugin, skills are invoked as `/plan-create`, `/plan-critique`, `/plan-cycle`,
+  `/plan-execute`, and `/plan-archive`.
 
 These skills help create, review, execute, and archive plans written by the user.
 
-The `cycle` skill is a shortcut through `create` and `critique`: it drafts `plan.md` only when the user has not
-written one, then critiques and merges up to `cycleIterations` times (default 3) and stops for approval. It
-merges on its own only the changes that are obvious, and asks the user about anything ambiguous, anything that
-touches what the user wrote, and anything that changes the scope of a chapter. It never executes the plan.
+The `plan-cycle` skill is a shortcut through `plan-create` and `plan-critique`: it drafts `plan.md` only when the
+user has not written one, then critiques and merges up to `cycleIterations` times (default 3) and stops for
+approval. It merges on its own only the changes that are obvious, and asks the user about anything ambiguous,
+anything that touches what the user wrote, and anything that changes the scope of a chapter. It never executes the
+plan.
 
 ## Architecture
 
 Session tracking for parallel plans:
 - Each session tracks its current plan via a file in `.planning/.sessions/`.
-- Claude Code and Antigravity key the file by the process ID obtained via `echo $PPID`, and clean up stale files
-  opportunistically via `kill -0 [PID]` checks.
-- Copilot CLI keys the file by the `COPILOT_AGENT_SESSION_ID` environment variable, and cleans up session files
-  that have not been modified in the last 7 days. It never shells out to `$PPID` or `kill`, because those do not
-  work on Windows.
+- When `COPILOT_AGENT_SESSION_ID` is set (or on Copilot CLI, falling back to `default`), the session file is keyed
+  by `COPILOT_AGENT_SESSION_ID` and stale non-PID session files not modified in the last 7 days are cleaned up.
+- Otherwise (Claude Code and Antigravity), the session file is keyed by the process ID obtained via `echo $PPID`,
+  and stale numeric-PID files are cleaned up opportunistically via `kill -0 [PID]` checks (never killing non-PID
+  files).
 - Skills read the session file to determine the current plan and show it as "(current session)" in selection.
 - The `.sessions/` directory is local state and should be gitignored.
 
 Per agent settings, manifests, and documentation:
-- Claude Code: `docs/claude-code.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, config in
-  `.claude/plan-critique-config.json`, project standards in `CLAUDE.md`.
-- Agy / Antigravity: `docs/agy.md`, config in `.gemini/plan-critique-config.json` with a fallback read of
-  `.claude/plan-critique-config.json`, project standards in `GEMINI.md`, `AGENTS.md` or `CLAUDE.md`.
-- Copilot CLI: `docs/copilot.md`, `.github/plugin/plugin.json`, `.github/plugin/marketplace.json`, config in
-  `.copilot/plan-critique-config.json` with a fallback read of `.claude/plan-critique-config.json`, project
-  standards in `.github/copilot-instructions.md`, `AGENTS.md` or `CLAUDE.md`.
-- The Copilot skills carry `name`, `description` and `license` frontmatter. They do not carry `allowed-tools`,
-  `argument-hint`, `model` or `effort`, which are Claude Code fields.
+- Config resolution checks the active agent's config file first (`.claude/plan-critique-config.json`,
+  `.gemini/plan-critique-config.json`, or `.copilot/plan-critique-config.json`) and falls back to reading the other
+  two; new configs write to the active agent's file.
+- Project instructions resolution checks the active agent's native file first (`GEMINI.md`,
+  `.github/copilot-instructions.md`, or `CLAUDE.md`) and falls back to `AGENTS.md` then `CLAUDE.md`.
+- Agent guides and manifests:
+  - Claude Code: `docs/claude-code.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`.
+  - Agy / Antigravity: `docs/agy.md`.
+  - Copilot CLI: `docs/copilot.md`, `.github/plugin/plugin.json`, `.github/plugin/marketplace.json`.
 
 ## Code Style
 
-- The skill markdown files in the `skills/`, `.gemini/skills/` and `.github/skills/` folders (each `SKILL.md` and
-  its supporting `.md` files) should have a word wrap of maximum 120 characters.
+- The skill markdown files in `skills/` (each `SKILL.md` and its supporting `.md` files) should have a word wrap of
+  maximum 120 characters.
 - The markdown text should be minimal, do not use bold or italic text unless absolutely necessary.
-- The markdown text should be mostly plain text paragraphs, ordered lists, emphasys on code with backticks and some code blocks.
+- The markdown text should be mostly plain text paragraphs, ordered lists, emphasis on code with backticks and some
+  code blocks.
 - The markdown text should include thematic breaks (`---`) to separate sections.
 - The text from the skill markdown files should be written in plain English and easy to read from a text editor
   even if markdown support is not available.
@@ -56,24 +59,19 @@ Per agent settings, manifests, and documentation:
 
 - The canonical version lives in `.claude-plugin/plugin.json` under the `version` field.
 - Follow semver: MAJOR for breaking changes, MINOR for new features, PATCH for fixes.
-- Every release must update six things:
+- Every release must update five things:
   1. `version` field in `.claude-plugin/plugin.json`
   2. `version` fields in `.github/plugin/plugin.json` and `.github/plugin/marketplace.json`
-  3. The hardcoded version in the banners inside `skills/create/SKILL.md` and `skills/cycle/SKILL.md`
-  4. The same banners inside `.gemini/skills/plan-create/SKILL.md`, `.gemini/skills/plan-cycle/SKILL.md`,
-     `.github/skills/plan-create/SKILL.md` and `.github/skills/plan-cycle/SKILL.md`
-  5. `CHANGELOG.md` with a new section describing the changes
-  6. A git tag in the format `v[VERSION]` (e.g. `v1.0.0`)
+  3. The hardcoded version in the banners inside `skills/plan-create/SKILL.md` and `skills/plan-cycle/SKILL.md`
+  4. `CHANGELOG.md` with a new section describing the changes
+  5. A git tag in the format `v[VERSION]` (e.g. `v1.0.0`)
 
 ## Documentation
 
-- Short and succinct
-- The README should have three major sections:
-  - Install
-    - Marketplace installation (recommended), per agent
-    - Manual installation via git clone, per agent
-  - Usage
-    - Pre-requisites
-    - Skills overview
-    - Workflow steps
+- Short and succinct.
+- The README should stay minimal and cover:
+  - Install: clone once (`~/work/plan-critique-skills`), global load from `skills/`, and update via `git pull` +
+    `/skills reload` (or Claude Code restart / `/reload-plugins`), linking per-project and Marketplace options to `docs/`
+  - Agent Compatibility Matrix
+  - How it works / Usage (Pre-requisites, Skills overview, Working agreement, Parallel plans)
   - Credits

@@ -10,5 +10,5 @@
   "repository": "https://github.com/serbanghita/plan-critique-skills",
   "license": "MIT",
   "keywords": ["planning", "critique", "workflow", "review", "execution"],
-  "skills": [".github/skills"]
+  "skills": ["skills"]
 }

@@ -61,7 +61,7 @@ configure_copilot_home() {
   mkdir -p "$HOME" "$XDG_CONFIG_HOME" "$XDG_DATA_HOME"
 }
 
-find "$repository_root/skills" "$repository_root/.gemini/skills" "$repository_root/.github/skills" \
+find "$repository_root/skills" \
   -type f -name '*.md' -print0 |
   xargs -0 awk '
     length > 120 {
@@ -91,12 +91,10 @@ manual_home="$temporary_root/manual-home"
 manual_project="$temporary_root/manual-project"
 configure_copilot_home "$manual_home"
 mkdir -p "$manual_project/.github"
-ln -s "$repository_root/.github/skills" "$manual_project/.github/skills"
-ln -s "$repository_root/working-agreement.md" "$manual_project/.github/working-agreement.md"
+ln -s "$repository_root/skills" "$manual_project/.github/skills"
 
 test -L "$manual_project/.github/skills"
-test -L "$manual_project/.github/working-agreement.md"
-test -f "$manual_project/.github/skills/plan-create/../../../working-agreement.md"
+test -f "$manual_project/.github/skills/plan-create/working-agreement.md"
 
 (
   cd "$manual_project"

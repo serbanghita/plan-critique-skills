@@ -4,7 +4,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, LSP, mcp__ide__ge
 description: >-
   Draft, critique and merge a plan in one loop, then stop for approval. Use when the user runs /plan-cycle or asks
   to run the full create-and-critique planning loop.
-argument-hint: [plan name]
+argument-hint: "[plan name]"
 disable-model-invocation: true
 model: opus
 effort: high

@@ -1,7 +1,7 @@
-This file defines the template written to `[plansFolder]/[slug]/plan.md` by `create` and the authoring rules
-used when an LLM drafts or updates a plan (for example in `cycle`).
+This file defines the template written to `[plansFolder]/[slug]/plan.md` by `plan-create` and the authoring rules
+used when an LLM drafts or updates a plan (for example in `plan-cycle`).
 
-During `create`, copy only the code block under `## Template` verbatim with the original plan name in the H1.
+During `plan-create`, copy only the code block under `## Template` verbatim with the original plan name in the H1.
 When drafting or adding chapters, act as a pragmatic Staff Engineer paired with a ruthless Technical Editor. Never
 overwrite or drop user-written requirements, wording, or constraints.
 
@@ -26,7 +26,7 @@ overwrite or drop user-written requirements, wording, or constraints.
 
 - Number chapters sequentially (`## 1. [Title]`) as discrete units of work ordered by dependency.
 - Keep `Affected files` and `Verification` in every chapter, as required by the working agreement and skill rules;
-  `critique` raises a finding when either one is missing.
+  `plan-critique` raises a finding when either one is missing.
 - Create subchapters (`### 1.1 [Title]`) when needed; include `Affected files` and `Verification` in any
   subchapter that makes code-related changes.
 - Tag each affected file with `create | modify | delete`. In `Verification`, state when no test infrastructure

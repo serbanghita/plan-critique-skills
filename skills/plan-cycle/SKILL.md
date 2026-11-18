@@ -1,10 +1,14 @@
 ---
+name: plan-cycle
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, LSP, mcp__ide__getDiagnostics, Bash
-description: Draft, critique and merge a plan in one loop, then stop for approval
-argument-hint: plan name
+description: >-
+  Draft, critique and merge a plan in one loop, then stop for approval. Use when the user runs /plan-cycle or asks
+  to run the full create-and-critique planning loop.
+argument-hint: [plan name]
 disable-model-invocation: true
 model: opus
 effort: high
+license: MIT
 ---
 
 You are running the whole planning loop in one pass: research the codebase, draft the plan only when the user has
@@ -14,9 +18,8 @@ This skill never executes the plan. It ends at the approval gate.
 
 Fixed rules:
 
-Read the working agreement at [working-agreement.md](../create/working-agreement.md) before step 1 and follow it for
-the whole run. If that path does not resolve, look for `../create/working-agreement.md` in the project root, then in
-`.claude/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+Read the working agreement at [working-agreement.md](../plan-create/working-agreement.md) before step 1 and follow it
+for the whole run. If it cannot be found, tell the user it is missing and apply the rules listed below.
 
 These rules bind this phase and override any step below that conflicts with them:
 
@@ -57,71 +60,80 @@ To do this, follow these steps precisely:
    |  Plan Critique v2.7.0 - Plan cycle              |
    +-------------------------------------------------+
    ```
-2. Read `.claude/plan-critique-config.json` and get `plansFolder` path from settings.
-   If the file doesn't exist or `plansFolder` is not set or is an empty string:
-   - Ask the user: "Where would you like to store your plans? Provide a folder path (default `.planning`):".
-     By default, the user should be presented with the option `.planning`.
-   - Save the path as `plansFolder` in `.claude/plan-critique-config.json`
-   - Create the folder if it doesn't exist
-   - Create an `archived/` subfolder inside it
-3. Read the optional `cycleIterations` value from the same config file. It is the maximum number of critique and
-   merge iterations for this run. Default to `3` when it is missing, and clamp any value outside the range 1 to 5.
-4. Get the Claude Code process ID by running: `echo $PPID`. Store this as `sessionPID`.
-5. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that
-   process is still running via `kill -0 [PID] 2>/dev/null`. If the command fails (process not running), delete that
-   session file. This is non-blocking cleanup.
-6. Read the current session's plan from `[plansFolder]/.sessions/[sessionPID]` if it exists. Store as `sessionPlan`.
+2. Resolve `plansFolder` from config:
+   - Check the active agent's config file first (`.claude/plan-critique-config.json` for Claude Code,
+     `.gemini/plan-critique-config.json` for Agy/Gemini, or `.copilot/plan-critique-config.json` for Copilot CLI),
+     falling back to reading the other two in order.
+   - If no config exists or `plansFolder` is not set or is an empty string:
+     - Ask the user: "Where would you like to store your plans? Provide a folder path (default `.planning`):".
+       By default, the user should be presented with the option `.planning`.
+     - Save `plansFolder` in the active agent's config file.
+     - Create the folder if it doesn't exist, and create an `archived/` subfolder inside it.
+3. Read the optional `cycleIterations` value from the resolved config file. It is the maximum number of critique
+   and merge iterations for this run. Default to `3` when missing, and clamp any value outside the range 1 to 5.
+4. Get the active session id:
+   - On Copilot CLI (or when `COPILOT_AGENT_SESSION_ID` is set): read `COPILOT_AGENT_SESSION_ID` via
+     `echo $COPILOT_AGENT_SESSION_ID` (macOS/Linux) or `$env:COPILOT_AGENT_SESSION_ID` (Windows); if empty, use the
+     literal value `default`. Store as `sessionId`.
+   - Otherwise (Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
+5. Clean up stale sessions in `[plansFolder]/.sessions/` (non-blocking, never abort because of cleanup):
+   - For numeric PID filenames, check `kill -0 [PID] 2>/dev/null` and delete if the process is no longer running.
+   - For non-PID session files (e.g. `default` or UUIDs), delete files not modified in the last 7 days.
+6. Read the current session's plan from `[plansFolder]/.sessions/[sessionId]` if it exists. Store as `sessionPlan`.
 7. Scan `[plansFolder]/` for subdirectories (each subdirectory is a plan). Exclude `archived/` and `.sessions/`
    folders and any files, only list plan directories.
 8. Select the plan for this cycle:
-   - If `$ARGUMENTS` is a slug that matches an existing plan folder, select that plan.
-   - Else if `$ARGUMENTS` is not empty, treat it as the name of a new plan and create it by following the plan
-     naming and folder creation steps of [../create/SKILL.md](../create/SKILL.md): the slug rules, the name
-     collision check, the folder creation and the `plan.md` template from
-     [plan-template.md](../create/plan-template.md). Do not display the create banner.
+   - If `$ARGUMENTS` or the invoking prompt text is a slug that matches an existing plan folder, select that plan.
+   - Else if `$ARGUMENTS` or the invoking prompt text is not empty, treat it as the name of a new plan and create it
+     by following the plan naming and folder creation steps of [../plan-create/SKILL.md](../plan-create/SKILL.md):
+     the slug rules, the name collision check, the folder creation and the `plan.md` template from
+     [plan-template.md](../plan-create/plan-template.md). Do not display the create banner.
    - Else if `sessionPlan` exists and matches a plan folder, auto-select it and inform the user:
      "Using current session plan: [sessionPlan]"
    - Else if exactly one plan exists, auto-select it and inform the user.
    - Else if plans exist, ask the user to select one from the list, and offer creating a new plan as the last
      option.
    - Else ask the user for a name for the new plan and create it as described above.
-9. Update the session file `[plansFolder]/.sessions/[sessionPID]` with the selected plan slug (create if needed).
+9. Update the session file `[plansFolder]/.sessions/[sessionId]` with the selected plan slug (create if needed).
 10. Read `[plansFolder]/[selected-plan]/plan.md` and classify it:
-    - Empty, or still the unedited template from [plan-template.md](../create/plan-template.md), which is
+    - Empty, or still the unedited template from [plan-template.md](../plan-create/plan-template.md), which is
       recognised by the placeholder chapter heading and the bracketed placeholder lines: the plan needs a draft.
     - Anything else: the user wrote it. Inform the user "Using the existing plan.md, no draft written." and go to
       step 13.
 11. Prepare the draft. Tell the user "plan.md is still the template. Drafting a first pass." and get the goal:
-    - Use `$ARGUMENTS` as the goal when it describes what to build.
+    - Use `$ARGUMENTS` or the invoking prompt text as the goal when it describes what to build.
     - Otherwise ask the user: "Describe what this plan must achieve:". Do not guess the goal.
 12. Research the codebase, then write the draft:
-    - Read `CLAUDE.md` and `README.md`, and the existing files the goal touches.
+    - Resolve project instructions (check the active agent's native file first: `GEMINI.md` for Agy,
+      `.github/copilot-instructions.md` for Copilot, `CLAUDE.md` for Claude Code; fall back to `AGENTS.md` then
+      `CLAUDE.md`) and read it alongside `README.md` and the existing files the goal touches.
     - List every file that the plan will create, modify or delete, and verify each path exists with Glob before
       writing it down. Show this list to the user before writing the plan.
     - Ask the user whenever the research leaves a real choice open, such as which module owns the change or which
       of two approaches the plan should take. Do not pick one and write it down as if it were settled.
-    - Write `[plansFolder]/[selected-plan]/plan.md` using [plan-template.md](../create/plan-template.md): one
+    - Write `[plansFolder]/[selected-plan]/plan.md` using [plan-template.md](../plan-create/plan-template.md): one
       numbered chapter per unit of work, in dependency order, each with its own `Affected files` and
       `Verification` sections. Every chapter names the test to write or the command to run.
     - Where the project has no test infrastructure, say so in the chapter instead of inventing a test harness.
 13. Check prerequisites once, before the loop:
     - If `plan.md` is empty after step 12: respond with "Plan file is empty. Edit
       `[plansFolder]/[selected-plan]/plan.md`" and stop.
-    - If `CLAUDE.md` does not exist in the project root: respond with "Create a `CLAUDE.md` file in the root of
-      your project." and stop.
-    - Detect the project languages and probe LSP as described in the LSP availability step of
-      [../critique/SKILL.md](../critique/SKILL.md). Record whether LSP is available, and reuse that answer for
-      every iteration instead of probing again.
+    - If no project instructions file exists (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, or
+      `.github/copilot-instructions.md`): respond with "Create a project instructions file (`CLAUDE.md`,
+      `GEMINI.md`, `AGENTS.md`, or `.github/copilot-instructions.md`) in the root of your project." and stop.
+    - Detect the project languages and probe code intelligence as described in step 10 of
+      [../plan-critique/SKILL.md](../plan-critique/SKILL.md). Record whether LSP / a language server is available,
+      and reuse that answer for every iteration instead of probing again.
 14. Run the cycle. Repeat the following until you have run `cycleIterations` iterations or an iteration surfaces
     no new findings:
     - Re-read `plan.md` from disk.
     - Critique it by following the fixed rules and the analysis steps of
-      [../critique/SKILL.md](../critique/SKILL.md), including the split evaluation. Skip its config, session and plan
-      selection steps, which this run already did. Its rule against editing `plan.md` binds the critique step
-      only, because merging is a separate step below.
+      [../plan-critique/SKILL.md](../plan-critique/SKILL.md), including the split evaluation. Skip its config,
+      session and plan selection steps, which this run already did. Its rule against editing `plan.md` binds the
+      critique step only, because merging is a separate step below.
     - Write the critique to `[plansFolder]/[selected-plan]/critique.md` using
-      [critique-format.md](../critique/critique-format.md), with the iteration number incremented from the previous
-      critique.
+      [critique-format.md](../plan-critique/critique-format.md), with the iteration number incremented from the
+      previous critique.
     - If the critique found nothing, respond with "No new findings." and leave the loop.
     - Merge the findings into `plan.md`:
       - Apply a CONFIRMED finding to the chapter it belongs to when the edit it asks for is obvious.
@@ -150,19 +162,20 @@ To do this, follow these steps precisely:
     Cycle complete after [N] iteration(s): [plansFolder]/[selected-plan]/plan.md
     Merged: [X] findings. Asked about: [Z]. Not merged: [Y], listed in cycle-log.md.
     Nothing has been executed and no project code was changed.
-    Review the plan. When you approve it, run `/plan:execute`.
+    Review the plan. When you approve it, run `/plan-execute`.
     ```
 
 Notes:
 
 - Never execute the plan from this skill, not even when the user approves it in the same session. Point the user
-  at `/plan:execute`, which carries its own rules, its own confirmation and its own execution log.
+  at `/plan-execute`, which carries its own rules, its own confirmation and its own execution log.
 - Each iteration is a full adversarial pass over the plan and the codebase, so a three iteration run on a large
-  plan is expensive. Set `cycleIterations` to 1 or 2 in `.claude/plan-critique-config.json` for small plans.
+  plan is expensive. Set `cycleIterations` to 1 or 2 in your config file for small plans.
+- If the active agent ignores `model` frontmatter, select a high-capability model with `/model`.
 - The cycle is resumable. Run it again on the same plan and it continues from the current `plan.md` and from the
   iteration number recorded in `critique.md`.
 - `critique.md` holds the latest iteration only, because each critique overwrites it. `cycle-log.md` holds the
   history of what was merged and what was skipped.
-- The plan folder, the session file and the config file are the same ones used by `/plan:create`,
-  `/plan:critique`, `/plan:execute` and `/plan:archive`. The cycle is a shortcut through the first two, not a
+- The plan folder, the session file and the config file are the same ones used by `/plan-create`,
+  `/plan-critique`, `/plan-execute` and `/plan-archive`. The cycle is a shortcut through the first two, not a
   separate workflow.

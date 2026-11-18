@@ -1,4 +1,4 @@
-The `archive` skill writes `archive-info.md` into the archive folder using this format.
+The `plan-archive` skill writes `archive-info.md` into the archive folder using this format.
 
 ```markdown
 # Archive Info

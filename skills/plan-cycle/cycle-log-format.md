@@ -1,4 +1,4 @@
-The `cycle` skill appends one entry per iteration to `[plansFolder]/[selected-plan]/cycle-log.md` using this
+The `plan-cycle` skill appends one entry per iteration to `[plansFolder]/[selected-plan]/cycle-log.md` using this
 format.
 
 Merging is automatic for the obvious changes only, so this file is the audit trail. Every finding the cycle

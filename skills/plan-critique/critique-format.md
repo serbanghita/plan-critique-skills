@@ -1,4 +1,4 @@
-This is the format the `critique` skill uses when writing `[plansFolder]/[selected-plan]/critique.md`.
+This is the format the `plan-critique` skill uses when writing `[plansFolder]/[selected-plan]/critique.md`.
 
 Every issue carries a `Confidence`, 1-10 grades (per `Grading findings` in `SKILL.md`), and an `Evidence` line, as
 required by the working agreement. Use CONFIRMED only when the issue was verified against the codebase. Use
@@ -13,7 +13,7 @@ Iteration: [number]
 
 [Brief overview of the plan and overall assessment. Only use bullets, no formatting.]
 [State the CONFIRMED count and the UNVERIFIED count.]
-[If LSP was unavailable during this run, state that symbol verification used the Grep fallback.]
+[If no language server / LSP was available during this run, state that symbol verification used the Grep fallback.]
 
 ---
 
@@ -45,5 +45,5 @@ Suggested Solution:
 [Repeat for each issue found]
 
 [If no issues found:]
-No issues found. Plan is ready for execution via `/plan:execute`.
+No issues found. Plan is ready for execution via `/plan-execute`.
 ```

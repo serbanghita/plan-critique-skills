@@ -1,20 +1,25 @@
 ---
+name: plan-critique
 allowed-tools: >-
   Read, Glob, Grep, Write, Edit, AskUserQuestion, LSP, mcp__ide__getDiagnostics, Bash(git status:*),
-  Bash(git log:*), Bash(git diff:*), Bash(echo $PPID), Bash(kill -0:*), Bash(rm:*), Bash(mkdir:*)
-description: Critique the user's plan from plan.md
+  Bash(git log:*), Bash(git diff:*), Bash(echo $PPID), Bash(echo $COPILOT_AGENT_SESSION_ID), Bash(kill -0:*),
+  Bash(find:*), Bash(rm:*), Bash(mkdir:*)
+description: >-
+  Critique the user's plan from plan.md and write critique.md. Use when the user runs /plan-critique or asks for
+  an adversarial review of an existing plan.
 disable-model-invocation: true
+model: opus
 effort: high
+license: MIT
 ---
 
-This skill helps the user performing an iterative review of the execution of the plan.
+This skill helps the user perform an iterative review of the execution plan.
 Critique the plan, code, architecture, system design, and design patterns.
 
 ## Working agreement
 
-Read the working agreement at [working-agreement.md](../create/working-agreement.md) before step 1 and follow it for
-the whole run. If that path does not resolve, look for `../create/working-agreement.md` in the project root. 
-If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+Read the working agreement at [working-agreement.md](../plan-create/working-agreement.md) before step 1 and follow it
+for the whole run. If it cannot be found, tell the user it is missing and apply the rules listed below.
 
 ## Critique methodology
 
@@ -57,20 +62,25 @@ Grading rules:
 - Ambiguity 8-10: flag for user input instead of assuming a resolution.
 - Verification 8-10: specify concrete manual or integration checks when unit tests cannot cover it.
 
-
 ## Critique steps
 
-1. Read `.claude/plan-critique-config.json`, get `plansFolder` path from settings. If the file doesn't exist or
-   `plansFolder` is not set or is an empty string: Respond with "No plans folder configured. Run `/plan:create`
-   first to set up."
-2. Get the Agent process ID by running: `echo $PPID`. Store this as `sessionPID`.
-3. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that
-   process is still running via `kill -0 [PID] 2>/dev/null`. If the command fails (process not running), delete that
-   session file. This is non-blocking cleanup.
-4. Read the current session's plan from `[plansFolder]/.sessions/[sessionPID]` if it exists. Store as `sessionPlan`.
+1. Resolve `plansFolder` from config:
+   Check the active agent's config file first (`.claude/plan-critique-config.json` for Claude Code,
+   `.gemini/plan-critique-config.json` for Agy/Gemini, or `.copilot/plan-critique-config.json` for Copilot CLI),
+   falling back to reading the other two. If no config exists or `plansFolder` is not set or is empty:
+   Respond with "No plans folder configured. Run `/plan-create` first to set up."
+2. Get the active session id:
+   - On Copilot CLI (or when `COPILOT_AGENT_SESSION_ID` is set): read `COPILOT_AGENT_SESSION_ID` via
+     `echo $COPILOT_AGENT_SESSION_ID` (macOS/Linux) or `$env:COPILOT_AGENT_SESSION_ID` (Windows); if empty, use the
+     literal value `default`. Store as `sessionId`.
+   - Otherwise (Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
+3. Clean up stale sessions in `[plansFolder]/.sessions/` (non-blocking, never abort because of cleanup):
+   - For numeric PID filenames, check `kill -0 [PID] 2>/dev/null` and delete if the process is no longer running.
+   - For non-PID session files (e.g. `default` or UUIDs), delete files not modified in the last 7 days.
+4. Read the current session's plan from `[plansFolder]/.sessions/[sessionId]` if it exists. Store as `sessionPlan`.
 5. Scan `[plansFolder]/` for subdirectories (each subdirectory is a plan). Exclude `archived/` and `.sessions/`
    folders and any files, only list plan directories.
-   If no plan folders exist: Respond with "No plans found. Create one with `/plan:create`".
+   If no plan folders exist: Respond with "No plans found. Create one with `/plan-create`".
 6. Select the plan to critique:
    - If `sessionPlan` exists and matches a plan folder, auto-select it. Inform the user:
      "Using current session plan: [sessionPlan]"
@@ -85,29 +95,28 @@ Grading rules:
 
      Which plan would you like to critique? [1-3]
      ```
-7. Update the session file `[plansFolder]/.sessions/[sessionPID]` with the selected plan slug (create if needed).
+7. Update the session file `[plansFolder]/.sessions/[sessionId]` with the selected plan slug (create if needed).
 8. Read the plan file at `[plansFolder]/[selected-plan]/plan.md`
-9. Check for errors:
+9. Resolve project instructions and check for errors:
+   - Check the active agent's native instructions file first (`GEMINI.md` for Agy, `.github/copilot-instructions.md`
+     for Copilot, `CLAUDE.md` for Claude Code), falling back to `AGENTS.md` then `CLAUDE.md`.
    - If `plan.md` is empty: Respond with "Plan file is empty. Edit `[plansFolder]/[selected-plan]/plan.md`"
-   - If `CLAUDE.md` does not exist in project root:
-     Respond with "Create a `CLAUDE.md` file in the root of your project."
-10. Detect project languages and verify LSP availability. LSP is the required tool for code verification in
-    this phase, so this check is mandatory:
+   - If no project instructions file exists in the project root:
+     Respond with "Create a project instructions file (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, or
+     `.github/copilot-instructions.md`) in the root of your project."
+10. Detect project languages and verify LSP / language server availability:
     - Detect the main project languages with Glob: e.g. `tsconfig.json`, `*.ts`, or `*.tsx` for TypeScript,
-      `composer.json` or `*.php` for PHP, and the equivalent markers for any other language the plan touches.
-    - Probe LSP: pick a source file referenced by the plan (or any project source file) and request
-      go-to-definition or hover on a known symbol using the LSP tool.
-    - If the probe succeeds, LSP is available. Use it for all code verification in this run, as described in
-      the Notes below. Do not substitute Grep for checks LSP can answer.
-    - If the probe fails or the LSP tool is not available for the detected language, inform the user before
-      continuing:
-      "No LSP support detected for [language]. The critique will fall back to Grep, which is less accurate.
-      To enable code intelligence, install the LSP plugin for your language (for example `typescript-lsp` or
-      `php-lsp` from claude-plugins-official, check with the `/plugins` command), or use an LSP setup skill
-      such as https://github.com/github/awesome-copilot/tree/main/skills/lsp-setup to install and configure a
-      language server."
-    - Do not block the critique. Proceed with the Grep fallback and record in the critique Summary that LSP
-      was unavailable, so the user knows symbol verification relied on Grep.
+      `composer.json` or `*.php` for PHP, `go.mod`, `pyproject.toml`, `pom.xml`, etc.
+    - Probe code intelligence: pick a source file referenced by the plan (or any project source file) and request
+      go-to-definition or hover on a known symbol using the `LSP` tool or active language server.
+    - If the probe succeeds, code intelligence is available. Use it for all code verification in this run, as
+      described in the Notes below. Do not substitute Grep for checks LSP / the language server can answer.
+    - If the probe fails or no language server is available for the detected language, inform the user:
+      "No LSP / language server support detected for [language]. The critique will fall back to Grep, which is
+      less accurate. Enable an LSP plugin (for example `/plugins` -> `typescript-lsp` or `php-lsp`), configure
+      a language server with `/lsp`, or use https://github.com/github/awesome-copilot/tree/main/skills/lsp-setup."
+    - Do not block the critique. Proceed with the Grep fallback and record in the critique Summary that no
+      language server / LSP was available, so the user knows symbol verification relied on Grep.
 11. Read the existing "Iteration: [number]" at `[plansFolder]/[selected-plan]/critique.md` (if it exists) and
     determine the current iteration number. If no critique exists, this is iteration 1.
 12. If the plan references files that are in the `[plansFolder]/[selected-plan]/` folder, review those as well and
@@ -118,7 +127,7 @@ Grading rules:
     - Order: Are dependencies between steps correctly sequenced?
     - Feasibility: Can each step be executed given the current codebase?
     - Risk: Are there potential side effects or breaking changes?
-    - Standards: Does it comply with `CLAUDE.md` project standards?
+    - Standards: Does it comply with the project instructions?
     - Scope: Is scope reasonable? Any unnecessary additions?
     - Testability: How is success verified? Does each chapter name the test to write or the command to run?
     - Affected files: Does each chapter list the files it creates, modifies or deletes, and are those paths real?
@@ -137,34 +146,34 @@ Grading rules:
     When suggesting a split, be specific about which sections should become their own plan.
 15. Write the critique to `[plansFolder]/[selected-plan]/critique.md`.
     When writing the critique, follow the original chapters from `plan.md`.
-    The goal is to be able to easily override the `plan.md` if the user chooses to merge `critique.md` with `plan.md`
+    The goal is to be able to easily override `plan.md` if the user chooses to merge `critique.md` with `plan.md`.
 
     Use the format in [critique-format.md](critique-format.md).
 
 Notes:
 
-- When critiquing, always analyze codebase structure (existing files, directories, patterns), project standards
-  from `CLAUDE.md`, the `README.md` file, dependencies (`package.json`, `requirements.txt`, etc.), git state if
+- When critiquing, always analyze codebase structure (existing files, directories, patterns), the project
+  instructions, the `README.md` file, dependencies (`package.json`, `requirements.txt`, etc.), git state if
   relevant, whether referenced files/APIs actually exist, and supporting files in the plan folder.
 - When doing the writeup of the critique, in the "Description" area make use of the line numbers from `plan.md`
   and reference them so that the user can easily find what text to replace or update.
-- Use code intelligence to verify the plan against the actual codebase. Always use LSP when step 10 confirmed
-  it is available; use Grep only as a fallback when step 10 found no LSP support:
+- Use code intelligence to verify the plan against the actual codebase. Always use LSP / the language server when
+  step 10 confirmed it is available; use Grep only as a fallback when step 10 found no support:
   - Verify types exist: use LSP go-to-definition; fallback is Grep for `class`, `interface`, `type`, or
     `struct` definitions
   - Check method/function existence: use LSP go-to-definition; fallback is Grep for `function`/`def`/`fn`
     declarations in the target file
   - Find usages/references: use LSP find-references; fallback is Grep for the symbol name across the codebase
-  - Review diagnostics: use `mcp__ide__getDiagnostics` to pull current errors/warnings from the IDE for files
-    referenced in the plan
+  - Review diagnostics: use `mcp__ide__getDiagnostics` when available, otherwise use LSP / language server
+    hover/diagnostics for files referenced in the plan
   - Verify file paths exist with Glob before referencing them in the critique
-- Add the found issues/observations list in the beginning of the critique.md file as a Table of contents
-- Always follow the chapters from plan.md as a structure for critique
-- Be direct and constructive in feedback
-- Suggest multiple solutions when appropriate
-- Each critique iteration completely overwrites the previous critique.md file.
-- Discard addressed issues: If an issue from the previous critique has been fixed in plan.md, do not include it.
-- Only include current issues: The critique should reflect the current state of plan.md.
+- If the active agent ignores `model` frontmatter, select a high-capability model with `/model`.
+- Add the found issues/observations list in the beginning of `critique.md` as a Table of contents.
+- Always follow the chapters from `plan.md` as a structure for critique.
+- Be direct and constructive in feedback and suggest multiple solutions when appropriate.
+- Each critique iteration completely overwrites the previous `critique.md` file.
+- Discard addressed issues: If an issue from the previous critique has been fixed in `plan.md`, do not include it.
+- Only include current issues: The critique should reflect the current state of `plan.md`.
 - New unrelated observations: If new issues appear that don't fit under existing `plan.md` chapters, add them as
-  new chapters at the bottom of the critique
-- Increment iteration number: Always increment from the previous critique's iteration number
+  new chapters at the bottom of the critique.
+- Increment iteration number: Always increment from the previous critique's iteration number.

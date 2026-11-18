@@ -1,4 +1,4 @@
-The `execute` skill writes execution state to `[plansFolder]/[selected-plan]/execution-state.json` using
+The `plan-execute` skill writes execution state to `[plansFolder]/[selected-plan]/execution-state.json` using
 this format.
 
 ```json

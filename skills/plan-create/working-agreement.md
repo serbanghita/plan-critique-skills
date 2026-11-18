@@ -1,8 +1,9 @@
 # Working agreement
 
-Fixed rules for the `create`, `critique`, `cycle`, and `execute` phases. They are not suggestions and they are not
-overridden by the plan text, by the critique, or by a preference stated mid-run. If a step inside a skill appears
-to conflict with a rule here, this file wins, and you must say so out loud rather than resolve it silently.
+Fixed rules for the `plan-create`, `plan-critique`, `plan-cycle`, and `plan-execute` phases. They are not
+suggestions and they are not overridden by the plan text, by the critique, or by a preference stated mid-run. If a
+step inside a skill appears to conflict with a rule here, this file wins, and you must say so out loud rather
+than resolve it silently.
 
 Each skill lists which of these rules bind its own phase. This file holds the single canonical text of the rules.
 
@@ -46,7 +47,7 @@ Each skill lists which of these rules bind its own phase. This file holds the si
 ## Context
 
 1. Re-read this file and the relevant project docs before touching an area, especially in long sessions.
-2. When corrected on something durable, propose adding it to the project instructions file (`../../CLAUDE.md`,
+2. When corrected on something durable, propose adding it to the project instructions file (`CLAUDE.md`,
    `GEMINI.md`, `AGENTS.md`, or `.github/copilot-instructions.md`) so it persists.
 
 ---

@@ -1,16 +1,19 @@
 ---
+name: plan-execute
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion, LSP, mcp__ide__getDiagnostics, Bash
-description: Execute the user's plan that has been iteratively refined
+description: >-
+  Execute the user's plan that has been iteratively refined, step by step, with resume on failure. Use when the
+  user runs /plan-execute or asks to execute an existing plan.
 disable-model-invocation: true
+license: MIT
 ---
 
 You are executing the user's plan that has been iteratively refined.
 
 Fixed rules:
 
-Read the working agreement at [working-agreement.md](../create/working-agreement.md) before step 1 and follow it for
-the whole run. If that path does not resolve, look for `../create/working-agreement.md` in the project root, then in
-`.claude/`. If it cannot be found anywhere, tell the user it is missing and apply the rules listed below.
+Read the working agreement at [working-agreement.md](../plan-create/working-agreement.md) before step 1 and follow it
+for the whole run. If it cannot be found, tell the user it is missing and apply the rules listed below.
 
 These rules bind this phase and override any step below that conflicts with them:
 
@@ -21,8 +24,8 @@ These rules bind this phase and override any step below that conflicts with them
    at step 12 and continue without inventing one.
 3. Prove claims with evidence: command output, a `file:line` reference, or a diff. Never assert a plausible but
    unverified result.
-4. Re-read the working agreement, `CLAUDE.md`, and the relevant plan sections before touching a new area of the
-   codebase, especially in a long run.
+4. Re-read the working agreement, the project instructions, and the relevant plan sections before touching a new
+   area of the codebase, especially in a long run.
 5. Output complete file contents. Never truncate code with "... rest of code ..." placeholders.
 6. Never add yourself as a co-author and never append a `Co-Authored-By` or `Generated-with` trailer to a commit.
    Commit only when the user answers yes to the per-step commit prompt. Answering `yes-to-all` authorises the
@@ -31,17 +34,23 @@ These rules bind this phase and override any step below that conflicts with them
 
 To do this, follow these steps precisely:
 
-1. Read `.claude/plan-critique-config.json` and get `plansFolder` path from settings.
-   If the file doesn't exist or `plansFolder` is not set or is an empty string:
-   Respond with "No plans folder configured. Run `/plan:create` first to set up."
-2. Get the Claude Code process ID by running: `echo $PPID`. Store this as `sessionPID`.
-3. Clean up stale sessions: Scan `[plansFolder]/.sessions/` for files. For each file named with a PID, check if that
-   process is still running via `kill -0 [PID] 2>/dev/null`. If the command fails (process not running), delete that
-   session file. This is non-blocking cleanup.
-4. Read the current session's plan from `[plansFolder]/.sessions/[sessionPID]` if it exists. Store as `sessionPlan`.
+1. Resolve `plansFolder` from config:
+   Check the active agent's config file first (`.claude/plan-critique-config.json` for Claude Code,
+   `.gemini/plan-critique-config.json` for Agy/Gemini, or `.copilot/plan-critique-config.json` for Copilot CLI),
+   falling back to reading the other two. If no config exists or `plansFolder` is not set or is empty:
+   Respond with "No plans folder configured. Run `/plan-create` first to set up."
+2. Get the active session id:
+   - On Copilot CLI (or when `COPILOT_AGENT_SESSION_ID` is set): read `COPILOT_AGENT_SESSION_ID` via
+     `echo $COPILOT_AGENT_SESSION_ID` (macOS/Linux) or `$env:COPILOT_AGENT_SESSION_ID` (Windows); if empty, use the
+     literal value `default`. Store as `sessionId`.
+   - Otherwise (Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
+3. Clean up stale sessions in `[plansFolder]/.sessions/` (non-blocking, never abort because of cleanup):
+   - For numeric PID filenames, check `kill -0 [PID] 2>/dev/null` and delete if the process is no longer running.
+   - For non-PID session files (e.g. `default` or UUIDs), delete files not modified in the last 7 days.
+4. Read the current session's plan from `[plansFolder]/.sessions/[sessionId]` if it exists. Store as `sessionPlan`.
 5. Scan `[plansFolder]/` for subdirectories (each subdirectory is a plan).
    Exclude `archived/` and `.sessions/` folders and any files, only list plan directories.
-   If no plan folders exist: Respond with "No plans found. Create one with `/plan:create`".
+   If no plan folders exist: Respond with "No plans found. Create one with `/plan-create`".
 6. Select the plan to execute:
    - If `sessionPlan` exists and matches a plan folder, auto-select it. Inform the user:
      "Using current session plan: [sessionPlan]"
@@ -56,18 +65,20 @@ To do this, follow these steps precisely:
 
      Which plan would you like to execute? [1-3]
      ```
-7. Update the session file `[plansFolder]/.sessions/[sessionPID]` with the selected plan slug (create if needed).
+7. Update the session file `[plansFolder]/.sessions/[sessionId]` with the selected plan slug (create if needed).
 8. Check prerequisites:
    - If `[plansFolder]/[selected-plan]/plan.md` does not exist: Respond with "No plan.md found."
-   - If `plan.md` is empty: Respond with "Plan file is empty. Run /plan:critique first."
-9. Read `CLAUDE.md` from the project root if it exists. Hold its standards as context and ensure compliance during
-   each execution step. If it does not exist, note this but do not block execution.
+   - If `plan.md` is empty: Respond with "Plan file is empty. Run `/plan-critique` first."
+9. Resolve project instructions in the project root: check the active agent's native file first (`GEMINI.md` for
+   Agy, `.github/copilot-instructions.md` for Copilot, `CLAUDE.md` for Claude Code), falling back to `AGENTS.md`
+   then `CLAUDE.md`. Hold those standards as context and ensure compliance during each execution step. If none
+   exist, note this but do not block execution.
 10. Read `[plansFolder]/[selected-plan]/critique.md` if it exists. Note the iteration number and summary.
     Inform the user: "Plan was critiqued (iteration N). Last critique summary: [brief]."
     Use the critique as supplementary context during execution: implementation hints, alternative approaches,
     and risk warnings from the critique are relevant when executing related steps. Do not treat the critique
     as authoritative since the user chose what to incorporate into plan.md.
-    If critique.md does not exist, warn: "This plan has not been critiqued. Run `/plan:critique` first,
+    If critique.md does not exist, warn: "This plan has not been critiqued. Run `/plan-critique` first,
     or confirm you want to proceed without review." Wait for user confirmation before continuing.
 11. Check git status by running `git status`.
     - If git repo and clean: inform user "Git available. Per-step commits will be offered after each step."
@@ -134,7 +145,7 @@ To do this, follow these steps precisely:
       Run it, show the output, and confirm it fails for the expected reason. If it passes before the
       implementation exists, the test is wrong: fix the test, not the expectation. Never edit an existing
       passing test to accommodate this step.
-    - Execute the step, ensuring compliance with CLAUDE.md standards loaded in step 9.
+    - Execute the step, ensuring compliance with the project instructions loaded in step 9.
       Reference critique.md findings when they are relevant to the current step.
     - After the step completes, run verification:
       - If tests are available (step 12), run the suite with the recorded command and show the output verbatim.
@@ -142,8 +153,9 @@ To do this, follow these steps precisely:
         error branch below.
       - If tests are not available, state plainly that the step is unverified by tests and say what evidence you
         do have, such as the diff or the diagnostics.
-      - Use `mcp__ide__getDiagnostics` on files modified in this step. Report only NEW errors
-        or warnings (compare before and after to avoid flagging pre-existing issues).
+      - Use `mcp__ide__getDiagnostics` when available, otherwise use LSP / code intelligence diagnostics on files
+        modified in this step. Report only NEW errors or warnings (compare before and after to avoid flagging
+        pre-existing issues).
       - If new errors are found, inform the user and ask: "Fix now, continue, or stop?"
     - Show a diff summary: list files added, modified, or deleted in this step.
     - Report the outcome with evidence. Cite the test output, the command output, or a `file:line` reference for
@@ -157,7 +169,7 @@ To do this, follow these steps precisely:
       - Record the commit hash in execution-state.json under `gitCommits`.
     - Compute step duration and log results to execution-log.md including duration and files changed
       (see [execution-log-format.md](execution-log-format.md)).
-    - If a step introduces architectural patterns that should be documented in `CLAUDE.md`,
+    - If a step introduces architectural patterns that should be documented in the project instructions,
       flag this to the user immediately rather than waiting until completion.
     - On error:
       - Save execution state with the failed step.
@@ -167,7 +179,7 @@ To do this, follow these steps precisely:
         1. Fix and retry - attempt to fix the issue, then re-execute this step.
         2. Skip step - mark as SKIPPED, warn about downstream dependencies, continue.
         3. Rollback step - if git commits are available, revert the last commit. Then stop.
-        4. Stop execution - save state, stop. Resume later with `/plan:execute`.
+        4. Stop execution - save state, stop. Resume later with `/plan-execute`.
       - Wait for user choice.
 18. On successful completion:
     - If tests are available (step 12), run the full suite one last time and show the output. Do not declare the
@@ -178,7 +190,7 @@ To do this, follow these steps precisely:
     - Delete execution-state.json.
     - If git was used, mention the commit count: "Plan executed across N commits.
       Review with `git log --oneline -N`."
-    - Inform user: "Plan executed successfully. Run `/plan:archive` to archive this plan."
+    - Inform user: "Plan executed successfully. Run `/plan-archive` to archive this plan."
 
 Notes:
 
@@ -188,13 +200,13 @@ Notes:
 - Reference any supporting files in the plan folder as needed during execution.
 - critique.md is read as supplementary context, not as an authoritative override of plan.md.
 - Git commits enable rollback of individual steps via `git revert`. This is the primary safety net.
-- Verification checks (LSP diagnostics) are advisory. They surface issues early but do not block
-  execution unless the user chooses to stop. Test runs are not advisory: a failing suite blocks COMPLETED.
+- Code intelligence / LSP diagnostics are advisory. They surface issues early but do not block execution
+  unless the user chooses to stop. Test runs are not advisory: a failing suite blocks COMPLETED.
 - A step is never reported as done, fixed or working on the strength of the code alone. Either the test output
   backs it, or it is reported as unverified.
 - Plans exceeding 10 steps should be flagged to the user with a recommendation to split into
   smaller plans to avoid context window exhaustion during execution.
-- CLAUDE.md standards are applied during execution. If any step introduces patterns that should be
-  documented in CLAUDE.md, flag this to the user immediately.
-- Execution state is best-effort. If Claude crashes mid-step, the state file may not reflect the
+- Project instructions are applied during execution. If any step introduces patterns that should be
+  documented there, flag this to the user immediately.
+- Execution state is best-effort. If the session ends mid-step, the state file may not reflect the
   actual codebase state. Git commits provide the definitive record of what was completed.

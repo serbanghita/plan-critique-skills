@@ -1,4 +1,4 @@
-The `execute` skill writes the execution log to `[plansFolder]/[selected-plan]/execution-log.md` using
+The `plan-execute` skill writes the execution log to `[plansFolder]/[selected-plan]/execution-log.md` using
 this format.
 
 The `Tests` line is required by the working agreement. A step is only logged as COMPLETED when its test run
@@ -35,5 +35,5 @@ Output:
 - Git commits: [list of commit hashes, or "none"]
 
 [If failed or partial:]
-Execution stopped at step [N]. Run `/plan:execute` to resume.
+Execution stopped at step [N]. Run `/plan-execute` to resume.
 ```

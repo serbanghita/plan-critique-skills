@@ -49,7 +49,11 @@ These rules bind this phase and override any step below that conflicts with them
 8. Merging is automatic for the obvious changes only, and never silent. Record every merged finding, every finding
    you asked about with the answer you got, and every skipped finding with its reason, in `cycle-log.md`, and
    print the same summary after each iteration.
-9. Stop early when an iteration surfaces no new findings. Respond "No new findings." and go to the approval gate.
+9. Stop early only when clean: before any finding is merged in the current run, stop on the first clean iteration
+   (`0 CONFIRMED, 0 UNVERIFIED`); once at least one finding has been merged in the current run, require two
+   consecutive clean iterations (`0 CONFIRMED, 0 UNVERIFIED`) before stopping early. Any finding surfaced in an
+   iteration (merged, asked, or skipped) resets the consecutive-clean counter to `0`. Respond "No new findings."
+   and go to the approval gate.
 10. Be brief. No filler, no preamble, no restating the request. No emojis, no em dashes, no bold or italic text.
 
 To do this, follow these steps precisely:
@@ -124,8 +128,8 @@ To do this, follow these steps precisely:
     - Detect the project languages and probe code intelligence as described in step 10 of
       [../plan-critique/SKILL.md](../plan-critique/SKILL.md). Record whether LSP / a language server is available,
       and reuse that answer for every iteration instead of probing again.
-14. Run the cycle. Repeat the following until you have run `cycleIterations` iterations or an iteration surfaces
-    no new findings:
+14. Run the cycle. Before iteration 1, initialize `hasMerged = false` and `cleanPasses = 0`. Repeat the following
+    until you have run `cycleIterations` iterations or the stop condition below triggers:
     - Re-read `plan.md` from disk.
     - Critique it by following the fixed rules and the analysis steps of
       [../plan-critique/SKILL.md](../plan-critique/SKILL.md), including the split evaluation. Skip its config,
@@ -134,27 +138,47 @@ To do this, follow these steps precisely:
     - Write the critique to `[plansFolder]/[selected-plan]/critique.md` using
       [critique-format.md](../plan-critique/critique-format.md), with the iteration number incremented from the
       previous critique.
-    - If the critique found nothing, respond with "No new findings." and leave the loop.
-    - Merge the findings into `plan.md`:
-      - Apply a CONFIRMED finding to the chapter it belongs to when the edit it asks for is obvious.
-      - Ask the user before making any change that is not obvious, and apply the answer. This covers an
-        ambiguous finding, a finding that touches a requirement or a constraint the user wrote, a finding that
-        changes the scope or the intent of a chapter, and two findings that pull in different directions. Show
-        the finding, the exact edit you propose and the alternatives. Ask once per change, and group the
-        questions of one iteration together so the loop stops as little as possible.
-      - Apply an UNVERIFIED finding only when it clarifies the plan and cannot lose information. Ask about it
-        otherwise.
-      - Skip any finding whose evidence is missing.
-      - Verify each edit before you write it. Run any command the finding puts into a `Verification` section and
-        confirm it passes on the current tree and can fail, and check every path and line number the edit
-        introduces. Do not carry a line range or an index from the critique into the plan when the chapter will
-        change the lines it points at: anchor to a heading, a fence or a symbol instead. When the edit does not
-        survive this check, ask the user rather than merging it.
-      - Keep the `Affected files` and `Verification` sections in every chapter.
-      - When the critique recommends splitting the plan, do not split it. Record the recommendation as an open
-        item for the approval gate.
+    - Evaluate the current iteration's findings (`CONFIRMED` and `UNVERIFIED`):
+      - If clean (`0 CONFIRMED, 0 UNVERIFIED`):
+        - If `hasMerged` is `true`, increment `cleanPasses` by 1.
+        - Skip the merge step below.
+      - If not clean (one or more `CONFIRMED` or `UNVERIFIED` findings, whether merged, asked, or skipped):
+        - Reset `cleanPasses = 0` and merge the findings into `plan.md`:
+          - Oscillation check (before merging any finding): inspect `[plansFolder]/[selected-plan]/cycle-log.md`
+            for all changes recorded as merged anywhere in the current run (both `Merged` entries and changes
+            applied to `plan.md` via `Asked`), not only in the immediately preceding iteration. If applying a
+            finding would undo, revert, or contradict any of those earlier changes, do not auto-merge it. Surface
+            it to the user instead per fixed rule 3, showing the earlier merged change, the new finding, and the
+            options.
+          - Apply a CONFIRMED finding to the chapter it belongs to when it passes the oscillation check and the
+            edit it asks for is obvious.
+          - Ask the user before making any change that is not obvious, and apply the answer. This covers an
+            ambiguous finding, a finding that touches a requirement or a constraint the user wrote, a finding that
+            changes the scope or the intent of a chapter, two findings that pull in different directions, and any
+            finding flagged by the oscillation check. Show the finding, the exact edit you propose and the
+            alternatives. Ask once per change, and group the questions of one iteration together so the loop
+            stops as little as possible.
+          - Apply an UNVERIFIED finding only when it passes the oscillation check, clarifies the plan and cannot
+            lose information. Ask about it otherwise.
+          - Skip any finding whose evidence is missing.
+          - Verify each edit before you write it. Run any command the finding puts into a `Verification` section
+            and confirm it passes on the current tree and can fail, and check every path and line number the edit
+            introduces. Do not carry a line range or an index from the critique into the plan when the chapter
+            will change the lines it points at: anchor to a heading, a fence or a symbol instead. When the edit
+            does not survive this check, ask the user rather than merging it.
+          - Keep the `Affected files` and `Verification` sections in every chapter.
+          - When the critique recommends splitting the plan, do not split it. Record the recommendation as an open
+            item for the approval gate.
+          - If at least one edit was written to `plan.md` in this iteration (auto-merged or applied from the
+            user's answer), set `hasMerged = true`.
     - Append an entry to `[plansFolder]/[selected-plan]/cycle-log.md` using [cycle-log-format.md](cycle-log-format.md),
       and print the same merged and skipped summary to the user.
+    - Check the stop condition:
+      - If the iteration was clean and (`hasMerged` is `false` or `cleanPasses` is 2): respond with
+        "No new findings." and leave the loop.
+      - If the iteration was clean and `hasMerged` is `true` and `cleanPasses` is 1: inform the user that one
+        clean pass is complete and one more consecutive clean pass is needed, then continue if `cycleIterations`
+        allows.
 15. Print the final `plan.md` in full, followed by the open items: every skipped finding and every split
     recommendation.
 16. Stop at the approval gate and respond:

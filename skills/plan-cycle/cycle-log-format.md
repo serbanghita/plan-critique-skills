@@ -28,12 +28,13 @@ Asked:
 
 - [Plan chapter title] - [the question put to the user]
   Answer: [what the user chose, and what was written to plan.md as a result]
+  Reason: [optional: reverses an earlier merge, asked]
 
 Not merged:
 
 - [Plan chapter title] - [one line on the finding]
-  Reason: [user declined the change | evidence missing | UNVERIFIED and would lose information |
-  split recommendation, left for the user]
+  Reason: [user declined the change | reverses an earlier merge, asked | evidence missing |
+  UNVERIFIED and would lose information | split recommendation, left for the user]
 
 ---
 
@@ -42,7 +43,7 @@ Not merged:
 ## Summary
 
 - Iterations run: [X of Y]
-- Stopped because: [no new findings | iteration limit reached]
+- Stopped because: [no new findings | two consecutive clean passes | iteration limit reached]
 - Questions asked: [count, or "none"]
 - Open items: [count of findings not merged, or "none"]
 ```

@@ -60,6 +60,15 @@ Per-project linking and Marketplace/Plugin setup live in the agent guides:
 
 ## Agent Compatibility Matrix
 
+The same skills work across Codex, Claude Code, Gemini CLI / Antigravity, and GitHub Copilot CLI:
+
+<p align="center">
+  <img src="https://cdn.simpleicons.org/openai" alt="OpenAI Codex" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/anthropic" alt="Anthropic Claude Code" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/googlegemini" alt="Google Gemini CLI / Antigravity" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/githubcopilot" alt="GitHub Copilot CLI" height="36" />
+</p>
+
 | Feature | Codex | Claude Code | Agy (Gemini CLI) | GitHub Copilot CLI |
 | :--- | :--- | :--- | :--- | :--- |
 | **Linked / Manual Names** | `$plan-create`, `$plan-critique`, `$plan-cycle`, `$plan-execute`, `$plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |

@@ -37,7 +37,7 @@ Follow these steps precisely:
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v3.0.0 - Creating new plan       |
+   |  Plan Critique v3.0.1 - Creating new plan       |
    +-------------------------------------------------+
    ```
 2. Resolve `plansFolder` from config:

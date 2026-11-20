@@ -145,11 +145,15 @@ To do this, follow these steps precisely:
       - If not clean (one or more `CONFIRMED` or `UNVERIFIED` findings, whether merged, asked, or skipped):
         - Reset `cleanPasses = 0` and merge the findings into `plan.md`:
           - Oscillation check (before merging any finding): inspect `[plansFolder]/[selected-plan]/cycle-log.md`
-            for all changes recorded as merged anywhere in the current run (both `Merged` entries and changes
-            applied to `plan.md` via `Asked`), not only in the immediately preceding iteration. If applying a
-            finding would undo, revert, or contradict any of those earlier changes, do not auto-merge it. Surface
-            it to the user instead per fixed rule 3, showing the earlier merged change, the new finding, and the
-            options.
+            for all changes recorded as merged anywhere in the selected plan's log across all runs (both
+            `Merged` entries and `Asked` entries whose `Answer:` starts with `Applied:`), not only in the
+            immediately preceding iteration. When an `Asked` entry with `Answer: Applied:` explicitly approved
+            reversing an earlier merge, that decision supersedes the earlier entry so subsequent checks compare
+            against the latest decision rather than re-flagging the old merge. If applying a finding would
+            undo, revert, or contradict an active earlier decision, do not auto-merge it. Surface it to the
+            user instead per fixed rule 3, showing the earlier change, the new finding, and the options. Record
+            the surfaced finding under `Asked`, and if declined or left unapplied also record it under
+            `Not merged` with `Reason: reverses an earlier merge, asked`.
           - Apply a CONFIRMED finding to the chapter it belongs to when it passes the oscillation check and the
             edit it asks for is obvious.
           - Ask the user before making any change that is not obvious, and apply the answer. This covers an

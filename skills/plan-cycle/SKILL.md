@@ -11,6 +11,9 @@ effort: high
 license: MIT
 ---
 
+On Codex, invoke skills with `$skill-name` (for example, `$plan-create`). Use that form when giving Codex
+commands; other clients use `/skill-name`.
+
 You are running the whole planning loop in one pass: research the codebase, draft the plan only when the user has
 not written one, critique it, merge the findings, repeat, then stop and wait for approval.
 
@@ -68,9 +71,10 @@ To do this, follow these steps precisely:
    +-------------------------------------------------+
    ```
 2. Resolve `plansFolder` from config:
-   - Check the active agent's config file first (`.claude/plan-critique-config.json` for Claude Code,
+   - Check the active agent's config file first (`.codex/plan-critique-config.json` for Codex,
+     `.claude/plan-critique-config.json` for Claude Code,
      `.gemini/plan-critique-config.json` for Agy/Gemini, or `.copilot/plan-critique-config.json` for Copilot CLI),
-     falling back to reading the other two in order.
+     falling back to the other agent configs.
    - If no config exists or `plansFolder` is not set or is an empty string:
      - Ask the user: "Where would you like to store your plans? Provide a folder path (default `.planning`):".
        By default, the user should be presented with the option `.planning`.
@@ -82,7 +86,7 @@ To do this, follow these steps precisely:
    - On Copilot CLI (or when `COPILOT_AGENT_SESSION_ID` is set): read `COPILOT_AGENT_SESSION_ID` via
      `echo $COPILOT_AGENT_SESSION_ID` (macOS/Linux) or `$env:COPILOT_AGENT_SESSION_ID` (Windows); if empty, use the
      literal value `default`. Store as `sessionId`.
-   - Otherwise (Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
+   - Otherwise (Codex, Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
 5. Clean up stale sessions in `[plansFolder]/.sessions/` (non-blocking, never abort because of cleanup):
    - For numeric PID filenames, check `kill -0 [PID] 2>/dev/null` and delete if the process is no longer running.
    - For non-PID session files (e.g. `default` or UUIDs), delete files not modified in the last 7 days.
@@ -111,9 +115,9 @@ To do this, follow these steps precisely:
     - Use `$ARGUMENTS` or the invoking prompt text as the goal when it describes what to build.
     - Otherwise ask the user: "Describe what this plan must achieve:". Do not guess the goal.
 12. Research the codebase, then write the draft:
-    - Resolve project instructions (check the active agent's native file first: `GEMINI.md` for Agy,
-      `.github/copilot-instructions.md` for Copilot, `CLAUDE.md` for Claude Code; fall back to `AGENTS.md` then
-      `CLAUDE.md`) and read it alongside `README.md` and the existing files the goal touches.
+    - Resolve project instructions from `AGENTS.md` for Codex, `GEMINI.md` for Agy,
+      `.github/copilot-instructions.md` for Copilot, or `CLAUDE.md` for Claude Code. Fall back to `AGENTS.md` then
+      `CLAUDE.md`, and read the result alongside `README.md` and the files the goal touches.
     - List every file that the plan will create, modify or delete, and verify each path exists with Glob before
       writing it down. Show this list to the user before writing the plan.
     - Ask the user whenever the research leaves a real choice open, such as which module owns the change or which
@@ -125,9 +129,9 @@ To do this, follow these steps precisely:
 13. Check prerequisites once, before the loop:
     - If `plan.md` is empty after step 12: respond with "Plan file is empty. Edit
       `[plansFolder]/[selected-plan]/plan.md`" and stop.
-    - If no project instructions file exists (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, or
-      `.github/copilot-instructions.md`): respond with "Create a project instructions file (`CLAUDE.md`,
-      `GEMINI.md`, `AGENTS.md`, or `.github/copilot-instructions.md`) in the root of your project." and stop.
+    - If no project instructions file exists (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or
+      `.github/copilot-instructions.md`): respond with "Create a project instructions file in the root of your
+      project." and stop.
     - Detect the project languages and probe code intelligence as described in step 10 of
       [../plan-critique/SKILL.md](../plan-critique/SKILL.md). Record whether LSP / a language server is available,
       and reuse that answer for every iteration instead of probing again.

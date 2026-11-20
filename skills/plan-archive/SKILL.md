@@ -10,20 +10,24 @@ license: MIT
 disable-model-invocation: true
 ---
 
+On Codex, invoke skills with `$skill-name` (for example, `$plan-create`). Use that form when giving Codex
+commands; other clients use `/skill-name`.
+
 You are archiving the user's completed (or abandoned) plan for future reference.
 
 To do this, follow these steps precisely:
 
 1. Resolve `plansFolder` from config:
-   Check the active agent's config file first (`.claude/plan-critique-config.json` for Claude Code,
+   Check the active agent's config file first (`.codex/plan-critique-config.json` for Codex,
+   `.claude/plan-critique-config.json` for Claude Code,
    `.gemini/plan-critique-config.json` for Agy/Gemini, or `.copilot/plan-critique-config.json` for Copilot CLI),
-   falling back to reading the other two. If no config exists or `plansFolder` is not set or is empty:
+   falling back to reading the other agent configs. If no config exists or `plansFolder` is not set or is empty:
    Respond with "No plans folder configured. Run `/plan-create` first to set up."
 2. Get the active session id:
    - On Copilot CLI (or when `COPILOT_AGENT_SESSION_ID` is set): read `COPILOT_AGENT_SESSION_ID` via
      `echo $COPILOT_AGENT_SESSION_ID` (macOS/Linux) or `$env:COPILOT_AGENT_SESSION_ID` (Windows); if empty, use the
      literal value `default`. Store as `sessionId`.
-   - Otherwise (Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
+   - Otherwise (Codex, Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
 3. Clean up stale sessions in `[plansFolder]/.sessions/` (non-blocking, never abort because of cleanup):
    - For numeric PID filenames, check `kill -0 [PID] 2>/dev/null` and delete if the process is no longer running.
    - For non-PID session files (e.g. `default` or UUIDs), delete files not modified in the last 7 days.

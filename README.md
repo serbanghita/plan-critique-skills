@@ -158,7 +158,7 @@ Token cost estimates for skills:
 - On-invoke cost: Paid when a skill executes (`SKILL.md` body loads).
   - `plan-create`: ~1.3k tokens
   - `plan-critique`: ~3.1k tokens
-  - `plan-cycle`: ~2.3k tokens for the skill body, plus one critique pass per iteration
+  - `plan-cycle`: ~3.3k tokens for the skill body, plus one critique pass per iteration
   - `plan-execute`: ~4.8k tokens
   - `plan-archive`: ~1.3k tokens
 - `skills/plan-create/working-agreement.md`: Adds ~700 tokens on invoke to `plan-create`, `plan-critique`,

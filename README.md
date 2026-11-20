@@ -6,6 +6,28 @@ Copilot CLI. Work with multiple written plans while keeping full control of the 
 
 ---
 
+## Agent Compatibility Matrix
+
+The same skills work across Codex, Claude Code, Gemini CLI / Antigravity, and GitHub Copilot CLI:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/openai/harmony/main/demo/harmony-demo/public/openai_logo.svg" alt="OpenAI Codex" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/anthropic" alt="Anthropic Claude Code" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/googlegemini" alt="Google Gemini CLI / Antigravity" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/githubcopilot" alt="GitHub Copilot CLI" height="36" />
+</p>
+
+| Feature | Codex | Claude Code | Agy (Gemini CLI) | GitHub Copilot CLI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Linked / Manual Names** | `$plan-create`, `$plan-critique`, `$plan-cycle`, `$plan-execute`, `$plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
+| **Plugin Skill Names** | N/A | `/plan:plan-create`, `/plan:plan-critique`, `/plan:plan-cycle`, `/plan:plan-execute`, `/plan:plan-archive` | N/A | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
+| **Skill Storage** | `~/.agents/skills/` or `.agents/skills/` | `~/.claude/skills/` or `.claude/skills/` | `~/.agents/skills/` or `skills.json` | `~/.agents/skills/`, `/skills add`, or `.github/skills/` |
+| **Config File** | `.codex/plan-critique-config.json`, then shared fallback | `.claude/` first, cross-fallback | `.gemini/` first, cross-fallback | `.copilot/` first, cross-fallback |
+| **Session Key** | `$PPID` (process ID) | `$PPID` (process ID) | `$PPID` (process ID) | `COPILOT_AGENT_SESSION_ID` (fallback `default`) |
+| **Project Standards** | `AGENTS.md` | `CLAUDE.md` -> `AGENTS.md` | `GEMINI.md` -> `AGENTS.md` -> `CLAUDE.md` | `.github/copilot-instructions.md` -> `AGENTS.md` -> `CLAUDE.md` |
+
+---
+
 ## Install
 
 Clone once to a permanent location; each agent loads directly from `skills/` with no copy-paste:
@@ -55,28 +77,6 @@ Per-project linking and Marketplace/Plugin setup live in the agent guides:
 - [Codex Guide](docs/codex.md)
 - [Agy (Gemini CLI / Antigravity) Guide](docs/agy.md)
 - [GitHub Copilot CLI Guide](docs/copilot.md)
-
----
-
-## Agent Compatibility Matrix
-
-The same skills work across Codex, Claude Code, Gemini CLI / Antigravity, and GitHub Copilot CLI:
-
-<p align="center">
-  <img src="https://cdn.simpleicons.org/openai" alt="OpenAI Codex" height="36" />&nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/anthropic" alt="Anthropic Claude Code" height="36" />&nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/googlegemini" alt="Google Gemini CLI / Antigravity" height="36" />&nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/githubcopilot" alt="GitHub Copilot CLI" height="36" />
-</p>
-
-| Feature | Codex | Claude Code | Agy (Gemini CLI) | GitHub Copilot CLI |
-| :--- | :--- | :--- | :--- | :--- |
-| **Linked / Manual Names** | `$plan-create`, `$plan-critique`, `$plan-cycle`, `$plan-execute`, `$plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
-| **Plugin Skill Names** | N/A | `/plan:plan-create`, `/plan:plan-critique`, `/plan:plan-cycle`, `/plan:plan-execute`, `/plan:plan-archive` | N/A | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
-| **Skill Storage** | `~/.agents/skills/` or `.agents/skills/` | `~/.claude/skills/` or `.claude/skills/` | `~/.agents/skills/` or `skills.json` | `~/.agents/skills/`, `/skills add`, or `.github/skills/` |
-| **Config File** | `.codex/plan-critique-config.json`, then shared fallback | `.claude/` first, cross-fallback | `.gemini/` first, cross-fallback | `.copilot/` first, cross-fallback |
-| **Session Key** | `$PPID` (process ID) | `$PPID` (process ID) | `$PPID` (process ID) | `COPILOT_AGENT_SESSION_ID` (fallback `default`) |
-| **Project Standards** | `AGENTS.md` | `CLAUDE.md` -> `AGENTS.md` | `GEMINI.md` -> `AGENTS.md` -> `CLAUDE.md` | `.github/copilot-instructions.md` -> `AGENTS.md` -> `CLAUDE.md` |
 
 ---
 

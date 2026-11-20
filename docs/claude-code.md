@@ -129,7 +129,10 @@ and `.copilot/plan-critique-config.json`:
 
 - Creates the plan folder when the name does not match an existing plan.
 - Drafts `plan.md` only when it is empty or still the unedited template. A plan you wrote is never overwritten.
-- Critiques and merges up to `cycleIterations` times, stopping early when an iteration finds nothing new.
+- Critiques and merges up to `cycleIterations` times, stopping early on a clean first pass or after two consecutive
+  clean passes following a merge (after a merge in a run, two clean iterations are needed, so a run merging in
+  iteration 1 has its earliest stop at iteration 3; `cycleIterations` of 1 or 2 hits the iteration limit unless a
+  prior run left `cleanPasses = 1`, and 4 or 5 is needed to stop before the cap).
 - Merges on its own only what is obvious. Anything ambiguous, anything that touches what you wrote, and
   anything that changes the scope of a chapter is put to you as a question before it is written.
 - Records every merged finding, every question and its answer, and every skipped finding in `cycle-log.md`,

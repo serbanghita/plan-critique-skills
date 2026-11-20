@@ -1,20 +1,47 @@
 # plan-critique-skills
 > Plan -> Critique (iterate) -> Execute -> Archive
 
-Iterative plan review and execution workflow for Claude Code, Agy (Gemini CLI / Antigravity), and GitHub Copilot
-CLI. Work with multiple written plans while keeping full control of the feedback loop from the LLM.
+Iterative plan review and execution workflow for Codex, Claude Code, Agy (Gemini CLI / Antigravity), and GitHub
+Copilot CLI. Work with multiple written plans while keeping full control of the feedback loop from the LLM.
+
+---
+
+## Agent Compatibility Matrix
+
+The same skills work across Codex, Claude Code, Gemini CLI / Antigravity, and GitHub Copilot CLI:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/openai/harmony/main/demo/harmony-demo/public/openai_logo.svg" alt="OpenAI Codex" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/anthropic" alt="Anthropic Claude Code" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/googlegemini" alt="Google Gemini CLI / Antigravity" height="36" />&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/githubcopilot" alt="GitHub Copilot CLI" height="36" />
+</p>
+
+| Feature | Codex | Claude Code | Agy (Gemini CLI) | GitHub Copilot CLI |
+| :--- | :--- | :--- | :--- | :--- |
+| **Linked / Manual Names** | `$plan-create`, `$plan-critique`, `$plan-cycle`, `$plan-execute`, `$plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
+| **Plugin Skill Names** | N/A | `/plan:plan-create`, `/plan:plan-critique`, `/plan:plan-cycle`, `/plan:plan-execute`, `/plan:plan-archive` | N/A | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
+| **Skill Storage** | `~/.agents/skills/` or `.agents/skills/` | `~/.claude/skills/` or `.claude/skills/` | `~/.agents/skills/` or `skills.json` | `~/.agents/skills/`, `/skills add`, or `.github/skills/` |
+| **Config File** | `.codex/plan-critique-config.json`, then shared fallback | `.claude/` first, cross-fallback | `.gemini/` first, cross-fallback | `.copilot/` first, cross-fallback |
+| **Session Key** | `$PPID` (process ID) | `$PPID` (process ID) | `$PPID` (process ID) | `COPILOT_AGENT_SESSION_ID` (fallback `default`) |
+| **Project Standards** | `AGENTS.md` | `CLAUDE.md` -> `AGENTS.md` | `GEMINI.md` -> `AGENTS.md` -> `CLAUDE.md` | `.github/copilot-instructions.md` -> `AGENTS.md` -> `CLAUDE.md` |
 
 ---
 
 ## Install
 
-Clone once to a permanent location (all three agents load directly from `skills/` with no copy-paste):
+Clone once to a permanent location; each agent loads directly from `skills/` with no copy-paste:
 
 ```bash
 git clone https://github.com/serbanghita/plan-critique-skills.git ~/work/plan-critique-skills
 ```
 
 Pick one global load method for your agent:
+
+- **Codex:** symlink each skill into `~/.agents/skills/`:
+  ```bash
+  mkdir -p ~/.agents/skills && ln -s ~/work/plan-critique-skills/skills/* ~/.agents/skills/
+  ```
 
 - **Claude Code:** symlink each skill into `~/.claude/skills/`:
   ```bash
@@ -41,26 +68,15 @@ Pull the clone and reload skills without re-copying anything:
 git -C ~/work/plan-critique-skills pull
 ```
 
+- **Codex:** start a new Codex session to pick up updated skills.
 - **Agy / Gemini CLI & GitHub Copilot CLI:** run `/skills reload` in your active session.
 - **Claude Code:** restart your session to pick up updated directory skills (or run `/reload-plugins` for Marketplace installs).
 
 Per-project linking and Marketplace/Plugin setup live in the agent guides:
 - [Claude Code Guide](docs/claude-code.md)
+- [Codex Guide](docs/codex.md)
 - [Agy (Gemini CLI / Antigravity) Guide](docs/agy.md)
 - [GitHub Copilot CLI Guide](docs/copilot.md)
-
----
-
-## Agent Compatibility Matrix
-
-| Feature | Claude Code | Agy (Gemini CLI) | GitHub Copilot CLI |
-| :--- | :--- | :--- | :--- |
-| **Linked / Manual Names** | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
-| **Plugin Skill Names** | `/plan:plan-create`, `/plan:plan-critique`, `/plan:plan-cycle`, `/plan:plan-execute`, `/plan:plan-archive` | N/A | `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, `/plan-archive` |
-| **Skill Storage** | `skills/` (symlinked to `~/.claude/skills/` or `.claude/skills/`) | `skills/` (via `~/.agents/skills/` or `skills.json`) | `skills/` (via `~/.agents/skills/`, `/skills add`, or `.github/skills/`) |
-| **Config File** | Active agent first (`.claude/`, `.gemini/`, `.copilot/` `plan-critique-config.json`), cross-fallback | Active agent first, cross-fallback | Active agent first, cross-fallback |
-| **Session Key** | `$PPID` (process ID) | `$PPID` (process ID) | `COPILOT_AGENT_SESSION_ID` (fallback `default`) |
-| **Project Standards** | `CLAUDE.md` -> `AGENTS.md` | `GEMINI.md` -> `AGENTS.md` -> `CLAUDE.md` | `.github/copilot-instructions.md` -> `AGENTS.md` -> `CLAUDE.md` |
 
 ---
 
@@ -95,9 +111,10 @@ only the obvious changes on its own and asks you about the rest.
 
 - One of the supported coding agent CLIs installed:
   - [Claude Code](https://claude.ai/claude-code) CLI
+  - [Codex](https://openai.com/codex/) CLI or app
   - [Agy / Gemini CLI / Antigravity](https://github.com/google-gemini)
   - [GitHub Copilot CLI](https://docs.github.com/copilot/how-tos/use-copilot-agents/use-copilot-cli)
-- A project instructions file in your project root (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, or `.github/copilot-instructions.md`).
+- A project instructions file in your project root (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or `.github/copilot-instructions.md`).
 
 ### Skills Overview
 
@@ -128,7 +145,7 @@ Edit `skills/plan-create/working-agreement.md` to customize rules for your team.
 
 You can work on multiple plans simultaneously in separate terminals. Each session tracks its own current plan via
 session files in `.planning/.sessions/`:
-- Claude Code and Agy key session files by process ID (`$PPID`).
+- Codex, Claude Code and Agy key session files by process ID (`$PPID`).
 - GitHub Copilot CLI keys session files by `COPILOT_AGENT_SESSION_ID`.
 
 Each terminal auto-selects its active plan when running critique or execute skills.
@@ -158,7 +175,7 @@ Token cost estimates for skills:
 - On-invoke cost: Paid when a skill executes (`SKILL.md` body loads).
   - `plan-create`: ~1.3k tokens
   - `plan-critique`: ~3.1k tokens
-  - `plan-cycle`: ~2.3k tokens for the skill body, plus one critique pass per iteration
+  - `plan-cycle`: ~3.3k tokens for the skill body, plus one critique pass per iteration
   - `plan-execute`: ~4.8k tokens
   - `plan-archive`: ~1.3k tokens
 - `skills/plan-create/working-agreement.md`: Adds ~700 tokens on invoke to `plan-create`, `plan-critique`,

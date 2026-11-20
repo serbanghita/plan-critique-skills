@@ -1,12 +1,14 @@
 # Project Standards
 
-This project provides five planning skills for three agents from a single canonical `skills/` tree:
+This project provides five planning skills for Codex, Claude Code, Antigravity / Gemini CLI, and GitHub Copilot CLI
+from a single canonical `skills/` tree:
 
-- All three agents (Claude Code, Antigravity / Gemini CLI, and GitHub Copilot CLI) read from `skills/` as
+- All four agents read from `skills/` as
   `plan-create`, `plan-critique`, `plan-cycle`, `plan-execute`, and `plan-archive`.
-- Installed manually or via symlink/config (`~/.claude/skills/`, `~/.agents/skills/`, `~/.gemini/config/skills.json`,
-  or `/skills add`), skills are invoked as `/plan-create`, `/plan-critique`, `/plan-cycle`, `/plan-execute`, and
-  `/plan-archive`.
+- Codex skills are invoked as `$plan-create`, `$plan-critique`, `$plan-cycle`, `$plan-execute`, and `$plan-archive`.
+- Other clients install manually or via symlink/config (`~/.claude/skills/`, `~/.agents/skills/`,
+  `~/.gemini/config/skills.json`, or `/skills add`) and invoke the skills with `/plan-create`, `/plan-critique`,
+  `/plan-cycle`, `/plan-execute`, and `/plan-archive`.
 - Installed as a Claude Code plugin (`"name": "plan"`), skills are namespaced as `/plan:plan-create`,
   `/plan:plan-critique`, `/plan:plan-cycle`, `/plan:plan-execute`, and `/plan:plan-archive`.
 - Installed as a Copilot CLI plugin, skills are invoked as `/plan-create`, `/plan-critique`, `/plan-cycle`,
@@ -26,19 +28,21 @@ Session tracking for parallel plans:
 - Each session tracks its current plan via a file in `.planning/.sessions/`.
 - When `COPILOT_AGENT_SESSION_ID` is set (or on Copilot CLI, falling back to `default`), the session file is keyed
   by `COPILOT_AGENT_SESSION_ID` and stale non-PID session files not modified in the last 7 days are cleaned up.
-- Otherwise (Claude Code and Antigravity), the session file is keyed by the process ID obtained via `echo $PPID`,
+- Otherwise (Codex, Claude Code and Antigravity), the session file is keyed by the process ID obtained via `echo $PPID`,
   and stale numeric-PID files are cleaned up opportunistically via `kill -0 [PID]` checks (never killing non-PID
   files).
 - Skills read the session file to determine the current plan and show it as "(current session)" in selection.
 - The `.sessions/` directory is local state and should be gitignored.
 
 Per agent settings, manifests, and documentation:
-- Config resolution checks the active agent's config file first (`.claude/plan-critique-config.json`,
-  `.gemini/plan-critique-config.json`, or `.copilot/plan-critique-config.json`) and falls back to reading the other
-  two; new configs write to the active agent's file.
-- Project instructions resolution checks the active agent's native file first (`GEMINI.md`,
+- Codex discovers project skills from `.agents/skills/` and user skills from `~/.agents/skills/`.
+- Config resolution checks the active agent's config file first (`.codex/plan-critique-config.json`,
+  `.claude/plan-critique-config.json`,
+  `.gemini/plan-critique-config.json`, or `.copilot/plan-critique-config.json`) and falls back to reading the other agent configs; new configs write to the active agent's file.
+- Project instructions resolution checks the active agent's native file first (`AGENTS.md` for Codex, `GEMINI.md`,
   `.github/copilot-instructions.md`, or `CLAUDE.md`) and falls back to `AGENTS.md` then `CLAUDE.md`.
 - Agent guides and manifests:
+  - Codex: `docs/codex.md`.
   - Claude Code: `docs/claude-code.md`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`.
   - Agy / Antigravity: `docs/agy.md`.
   - Copilot CLI: `docs/copilot.md`, `.github/plugin/plugin.json`, `.github/plugin/marketplace.json`.

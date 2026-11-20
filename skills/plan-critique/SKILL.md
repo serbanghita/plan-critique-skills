@@ -13,6 +13,9 @@ effort: high
 license: MIT
 ---
 
+On Codex, invoke skills with `$skill-name` (for example, `$plan-create`). Use that form when giving Codex
+commands; other clients use `/skill-name`.
+
 This skill helps the user perform an iterative review of the execution plan.
 Critique the plan, code, architecture, system design, and design patterns.
 
@@ -65,15 +68,16 @@ Grading rules:
 ## Critique steps
 
 1. Resolve `plansFolder` from config:
-   Check the active agent's config file first (`.claude/plan-critique-config.json` for Claude Code,
+   Check the active agent's config file first (`.codex/plan-critique-config.json` for Codex,
+   `.claude/plan-critique-config.json` for Claude Code,
    `.gemini/plan-critique-config.json` for Agy/Gemini, or `.copilot/plan-critique-config.json` for Copilot CLI),
-   falling back to reading the other two. If no config exists or `plansFolder` is not set or is empty:
+   falling back to reading the other agent configs. If no config exists or `plansFolder` is not set or is empty:
    Respond with "No plans folder configured. Run `/plan-create` first to set up."
 2. Get the active session id:
    - On Copilot CLI (or when `COPILOT_AGENT_SESSION_ID` is set): read `COPILOT_AGENT_SESSION_ID` via
      `echo $COPILOT_AGENT_SESSION_ID` (macOS/Linux) or `$env:COPILOT_AGENT_SESSION_ID` (Windows); if empty, use the
      literal value `default`. Store as `sessionId`.
-   - Otherwise (Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
+   - Otherwise (Codex, Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
 3. Clean up stale sessions in `[plansFolder]/.sessions/` (non-blocking, never abort because of cleanup):
    - For numeric PID filenames, check `kill -0 [PID] 2>/dev/null` and delete if the process is no longer running.
    - For non-PID session files (e.g. `default` or UUIDs), delete files not modified in the last 7 days.
@@ -98,11 +102,12 @@ Grading rules:
 7. Update the session file `[plansFolder]/.sessions/[sessionId]` with the selected plan slug (create if needed).
 8. Read the plan file at `[plansFolder]/[selected-plan]/plan.md`
 9. Resolve project instructions and check for errors:
-   - Check the active agent's native instructions file first (`GEMINI.md` for Agy, `.github/copilot-instructions.md`
-     for Copilot, `CLAUDE.md` for Claude Code), falling back to `AGENTS.md` then `CLAUDE.md`.
+   - Check the active agent's native instructions file first (`AGENTS.md` for Codex, `GEMINI.md` for Agy,
+     `.github/copilot-instructions.md` for Copilot, `CLAUDE.md` for Claude Code), falling back to `AGENTS.md` then
+     `CLAUDE.md`.
    - If `plan.md` is empty: Respond with "Plan file is empty. Edit `[plansFolder]/[selected-plan]/plan.md`"
    - If no project instructions file exists in the project root:
-     Respond with "Create a project instructions file (`CLAUDE.md`, `GEMINI.md`, `AGENTS.md`, or
+     Respond with "Create a project instructions file (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, or
      `.github/copilot-instructions.md`) in the root of your project."
 10. Detect project languages and verify LSP / language server availability:
     - Detect the main project languages with Glob: e.g. `tsconfig.json`, `*.ts`, or `*.tsx` for TypeScript,

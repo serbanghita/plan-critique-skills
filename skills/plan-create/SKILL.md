@@ -10,6 +10,9 @@ argument-hint: "[plan name]"
 license: MIT
 ---
 
+On Codex, invoke skills with `$skill-name` (for example, `$plan-create`). Use that form when giving Codex
+commands; other clients use `/skill-name`.
+
 This skill helps the user create a new plan folder along with a base `plan.md` file where the user can start
 writing the plan manually or with the help of an LLM.
 
@@ -34,13 +37,14 @@ Follow these steps precisely:
 1. Display the following banner before doing anything else:
    ```
    +-------------------------------------------------+
-   |  Plan Critique v3.0.0 - Creating new plan       |
+   |  Plan Critique v3.0.1 - Creating new plan       |
    +-------------------------------------------------+
    ```
 2. Resolve `plansFolder` from config:
-   - Check the active agent's config file first (`.claude/plan-critique-config.json` for Claude Code,
+   - Check the active agent's config file first (`.codex/plan-critique-config.json` for Codex,
+     `.claude/plan-critique-config.json` for Claude Code,
      `.gemini/plan-critique-config.json` for Agy/Gemini, or `.copilot/plan-critique-config.json` for Copilot CLI),
-     falling back to reading the other two in order if the primary file does not exist or `plansFolder` is unset.
+     falling back to the other agent configs if the primary file does not exist or `plansFolder` is unset.
    - If no config exists or `plansFolder` is not set or is an empty string:
      - Ask the user: "Where would you like to store your plans? Provide a folder path (default `.planning`):".
        By default, the user should be presented with the option `.planning`.
@@ -67,7 +71,7 @@ Follow these steps precisely:
    - On Copilot CLI (or when `COPILOT_AGENT_SESSION_ID` is set): read `COPILOT_AGENT_SESSION_ID` via
      `echo $COPILOT_AGENT_SESSION_ID` (macOS/Linux) or `$env:COPILOT_AGENT_SESSION_ID` (Windows); if empty, use the
      literal value `default`. Store as `sessionId`.
-   - Otherwise (Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
+   - Otherwise (Codex, Claude Code / Agy): run `echo $PPID` and store as `sessionId`.
    - Create `[plansFolder]/.sessions/` if needed and write the slug to `[plansFolder]/.sessions/[sessionId]`.
 8. Create the plan template at `[plansFolder]/[slug]/plan.md` using [plan-template.md](plan-template.md).
    Keep the original plan name with proper casing in the H1 heading of `plan.md`.
